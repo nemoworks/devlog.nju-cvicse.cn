@@ -136,3 +136,7 @@ leasing-frontend
 #### 1 修改现有组件
 
 #### 2 构建新的页面
+
+- 在前端目录`/src/pages`中为新页面命名一个文件夹，新页面组件相关的js、css文件都存放在该文件夹下，并且我们约定同一目录下与js文件同名的css文件负责配置前者的组件样式，例如`TemplateList/index.js`中的组件样式可以在`TemplateList/index.css`中进行配置；
+- 绘制好新页面的组件后，在`config/config.js`中为新页面配置路由；
+- 在`/src/model`中新增新页面的同名js文件，注意使用驼峰命名法，完成新页面涉及的model层数据处理部分；
