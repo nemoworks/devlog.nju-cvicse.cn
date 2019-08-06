@@ -129,11 +129,19 @@ leasing-frontend
 
 #### 2 部分组件说明
 
+- Braft Editor
 
+  Braft Editor是基于draft-js开发的编辑器，而draft-js内部并不是直接使用HTML作为组件状态的，它自己实现了一个EditorState类型，本质上是一个JS对象；`editorState.toRAW()`可以将EditorState类型转化为一个JSON对象，`editorState.toHTML()`可以将EditorState类型转化为HTML；
+
+  编辑器的value属性必须是一个editorState对象
+
+  实际使用时请避免在onChange中直接toHTML，配合节流函数或者在合适的时机使用更恰当
 
 ### 开发案例
 
 #### 1 修改现有组件
+
+- 首先要找到组件对应的源代码，高度可复用组件的js文件在`/src/component`目录下，页面组件的js文件在`/src/pages`目录下，
 
 #### 2 构建新的页面
 
