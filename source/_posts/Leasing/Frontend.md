@@ -12,16 +12,16 @@ date: 2019-07-26 20:45:04
 #### 1 文件目录结构
 ```
 leasing-frontend
-├── CNAME
+├── CNAME //项目名
 ├── README.md
-├── config
-│   ├── config.js
-│   ├── defaultSettings.js
-│   └── plugin.config.js
+├── config //配置
+│   ├── config.js //配置文件
+│   ├── defaultSettings.js //默认配置（主题等）
+│   └── plugin.config.js //插件配置
 ├── jest-puppeteer.config.js
 ├── jest.config.js
 ├── jsconfig.json
-├── mock
+├── mock //前端模拟接口
 │   ├── contractDB.js
 │   ├── notices.js
 │   ├── route.js
@@ -30,21 +30,21 @@ leasing-frontend
 │   └── user.js
 ├── package.json
 ├── pom.xml
-├── public
+├── public //公共图片资源
 │   ├── favicon.png
 │   └── icons
 │       ├── icon-128x128.png
 │       ├── icon-192x192.png
 │       └── icon-512x512.png
 ├── src
-│   ├── assets
+│   ├── assets //项目图片资源
 │   │   ├── add.png
 │   │   ├── form.png
 │   │   ├── logo.png
 │   │   ├── logo.svg
 │   │   ├── save.png
 │   │   └── tree.png
-│   ├── components
+│   ├── components //可复用组件
 │   │   ├── Authorized
 │   │   ├── CopyBlock
 │   │   ├── GlobalHeader
@@ -61,22 +61,22 @@ leasing-frontend
 │   │   └── topMenu.e2e.js
 │   ├── global.jsx
 │   ├── global.less
-│   ├── layouts
+│   ├── layouts //Layout组件
 │   │   ├── BasicLayout.jsx
 │   │   ├── BlankLayout.jsx
 │   │   ├── UserLayout.jsx
 │   │   └── UserLayout.less
-│   ├── locales
+│   ├── locales //国际化配置
 │   │   ├── en-US
 │   │   ├── en-US.js
 │   │   ├── pt-BR
 │   │   ├── pt-BR.js
 │   │   ├── zh-CN
-│   │   ├── zh-CN.js
+│   │   ├── zh-CN.js //中英文配置
 │   │   ├── zh-TW
 │   │   └── zh-TW.js
 │   ├── manifest.json
-│   ├── models
+│   ├── models //model层文件
 │   │   ├── contract.js
 │   │   ├── contractList.js
 │   │   ├── global.js
@@ -88,16 +88,16 @@ leasing-frontend
 │   │   ├── template.js
 │   │   ├── templateList.js
 │   │   └── user.js
-│   ├── pages
+│   ├── pages //页面组件
 │   │   ├── 404.jsx
 │   │   ├── Authorized.jsx
-│   │   ├── ContractEditor
-│   │   ├── ContractList
-│   │   ├── FinancialCalculator
-│   │   ├── ProcessInstance
-│   │   ├── ProcessList
-│   │   ├── TemplateEditor
-│   │   ├── TemplateList
+│   │   ├── ContractEditor //合同编辑页面
+│   │   ├── ContractList //合同列表页面
+│   │   ├── FinancialCalculator //金融计算器页面
+│   │   ├── ProcessInstance //流程管理页面
+│   │   ├── ProcessList //流程列表页面
+│   │   ├── TemplateEditor //模版编辑页面
+│   │   ├── TemplateList //模版列表页面
 │   │   ├── Welcome.jsx
 │   │   ├── document.ejs
 │   │   ├── index.css
@@ -121,12 +121,26 @@ leasing-frontend
 ```
 
 #### 2 前端分层架构
+前端分层架构图
 
+{% qnimg package.png %}
+
+ - Route Component: 路由组件，负责解析前端收到的url请求，ant-design-pro框架已提供
+ - Component: 页面组件，负责定义页面的渲染细节，由开发人员编写
+ - Model: 每个Model对应一个前端数据对象实体，包括数据，数据更新函数，与后台（Server）交互的中间件函数等
+ - Action: 描述了一个Model层方法和所需参数的js对象，action是改变State的唯一途径
+ - dispatch: 用于触发Action所需的函数
+ - State: 全部Model构成的集合
+ - connect: State和dispatch函数通过connect函数绑定到页面组件来为页面组件提供数据，并更新页面组件
 
 ### 代码说明
 
 #### 1 文件组织约定
-
+使用ant-design-pro框架，具体规约如下：
+ - routes：路由不进行额外配置，使用antdpro默认配置，pages下路径即路由
+ - pages：组织页面文件，按页面在pages下新建子目录，并在子目录下配置index.js作为页面入口，例如localhost:8080/template对应的页面是pages/template/index.js
+ - model：model层文件按照后台资源划分，例如存储文件资源的model可以命名为file.js
+ -  css：css统一使用css文件，jsx页面使用的css与jsx相同命名并保存在同一目录下，例如index.jsx的css文件命名为index.css且与index.js在同一目录
 #### 2 部分组件说明
 
 - [Braft Editor](https://braft.margox.cn/)
