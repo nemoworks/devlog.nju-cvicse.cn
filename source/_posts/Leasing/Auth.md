@@ -101,6 +101,85 @@ public interface ModelHandler {
 - 操作行为默认是 `ActionType.QUERY` , 当前在业务不继续扩展的情况下仅支持查询操作前后的数据行过滤。如果需要进行其他操作类型的定制化方案，可以自行实现
 - 操作对象的实体必须继承自 `BaseEntity` 
 
+##### 2.3.3 列过滤使用说明
+
+采取 `json` 字符串的解析，`NormalAuthModelRealm` 中的 `deepFilter` 使用两个参数进行深度过滤
+
+1. 即将进行深度过滤的对象 `object`
+2. 深度过滤的json 框架 `framework`
+
+我们要求 `framework`的格式必须和 `object` 的序列化格式相同。具体实例如下：
+
+我们给出一个原实体的json序列化表达式
+
+```json
+{
+    "name": "Huuuu",
+    "knowledge": {
+      "level": 2,
+      "school": {
+        "name": "NJU",
+        "nation": "China",
+        "province": "Jiang Su"
+      }
+    },
+    "nation": "China",
+    "province": "Jiang Su",
+    "likes": [
+      {
+        "name": "13",
+        "year": 130
+      },
+      {
+        "name": "14",
+        "year": 140
+      }
+    ]
+  }
+```
+
+将其反序列化可以得到对应的 json 实体实例，为了方便起见，可以直接调用传统json框架的反序列化方法。
+
+我们再给出某一种筛选的json框架
+
+```json
+{
+    "knowledge": {
+      "school": {
+        "name": "NJU",
+        "nation": "China"
+      }
+    },
+    "likes": [
+      {
+        "year": 130
+      }
+    ]
+  }
+```
+
+所有在json框架中给出的字段，将会作为去除字段的指示。故 `deepFilter` 函数的返回值将会是去除了json框架中的字段后的剩余实体内容。
+
+注意，对于数组类型的数据，我们对于数组中的每一个实体都进行相同的列过滤策略，具体的json框架格式如下
+
+```json
+    "likes": [
+      {
+        "year": 130
+      }
+    ]
+```
+
+这里我们指示了需要去除 `linkes` 数组下的每一个元素的 `year` 字段。当然我们也支持如下的写法
+
+```json
+    "likes":{
+        "year": 130
+      }
+```
+
+
+
 #### 2.4 实现AuthManager 进行权限信息的缓存和读取
 
 行过滤可以支持如下的 `AuthorizationScope` 类型：
