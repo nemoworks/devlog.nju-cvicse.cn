@@ -13,30 +13,23 @@ date: 2019-09-025 23:36:15
 
 - 数据说明（schema数据说明，注意说明schema引用关系）
 
-客户类图，两个类，客户类和合同类的关系
+Json Schema定义了一套词汇和规则，用来定义Json元数据。这些元数据定义给出了Json数据需要满足的各项规范（成员、结构、类型等）。
 
-统一例子e.g.客户的json schema 包含普通类型和定制类型
+以一个合同的schema框架为例，可能的设计如下：
 
 ```json
 {
-  "name": {"type": "string"},//客户姓名
-  "address": {"type": "address"},//客户地址，地址类型address
-  "e-mail": {"type": "string"},//客户邮箱
-  "occupation": {"type": "occupationType"},//客户职业，定制类型occupationType
-  "contract": {
-    "lease": {"type": "leaseType"},//欲租物品，定制类型leaseType
-  	"ship": {
-    	"amount": {"type": "number"},
-    	"size": {"type": "size"}
-  	}//欲租物品为ship时，可定制字段ship，指定ship的数量及大小
-  },//客户名下引用合同类，表示客户签订了这个合同
-  "contract": {
-		//...  
-	}//一个客户可以同时拥有多个签订的合同项
+  "customer_id": {"type": "string"},//客户编号，是schema中对客户数据的引用方式，表示该客户签订了本份合同
+  "lease": {"type": "leaseType"},//待租物品，定制类型leaseType
+  "ship": {
+   	"amount": {"type": "number"},
+   	"size": {"type": "size"}
+  },//待租物品为ship时，可定制字段ship，指定ship的数量及大小
+  "startDate": {"type": "date"},
+  "endDate": {"type": "date"}//租赁起止日期，类型为date
+  //...可按需求添加其余字段及类型
 }
 ```
-
-体现引用关系
 
 - 扩展定义（schema扩展方法，注意说明关联属性定义）
 
