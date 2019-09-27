@@ -191,8 +191,6 @@ date: 2019-09-025 23:36:15
 
 braft editor
 
-定义占位符，替换占位符（简单值，表格)
-
 #### chart
 
 #### spread sheet
