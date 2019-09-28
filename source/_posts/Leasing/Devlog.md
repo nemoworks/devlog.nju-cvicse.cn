@@ -22,6 +22,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
   "customer_id": {"type": "string"},//客户编号，是schema中对客户数据的引用方式，表示该客户签订了本份合同
   "lease": {"type": "leaseType"},//待租物品，定制类型leaseType
   "ship": {
+    "type": "object",
    	"amount": {"type": "number"},
    	"size": {"type": "size"}
   },//待租物品为ship时，可定制字段ship，指定ship的数量及大小
@@ -96,17 +97,26 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 如下使用metaSchema将leaseType和tel字段加入进可用字段列表
 
 ```jsx
-/* schemaEditor抽屉 */
-    const schemaEditorDrawer = (
-      <Drawer title={formatMessage({ id: 'templateEditor.schemaEditor' })} placement="right" closable={false} onClose={_ => this.setState({ schemaVisible: false })} visible={this.state.schemaVisible} width="50%">
-        <SchemaEditor
-          data={JSON.stringify(template.content.schema)}
-          onChange={schema => this.updateSchemaHandler(template, schema)}
-          metaSchema={['string', 'number', 'array', 'object', 'boolean', 'integer', 'tel', 'leaseType']}
-        />
-      </Drawer>
-    )
-
+import schemaEditor from '@/components/JsonSchema/index.js';
+/* schema editor的配置属性 */
+const config = {
+  /* 自定义类型的初始值；必填，否则自定义类型会报错； */
+  defaultSchema: {
+    tel: {
+      type: 'rate',
+    },
+    leaseType: {
+      type: 'lease',
+    }
+  }
+};
+const SchemaEditor = schemaEditor(config);
+render(
+  /* 使用metaSchema将leaseType和tel字段加入进可用字段列表 */
+  <SchemaEditor data={schema} onChange
+    metaSchema={['string', 'number', 'array', 'object', 'boolean', 'integer', 'tel', 'leaseType']} />,
+	document.getElementById('root')
+)
 ```
 
 
@@ -115,36 +125,18 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 定制某种类型的advanced settings，然后在其与先前schema中创建的对应字段之间建立映射
 
-如下是对String类型的各项操作的定制：
+如下是对Object类型的各项操作的定制：
 
 ```jsx
-class CustomizedSchemaString extends PureComponent {
-  constructor(props, context) {
-    //...
-  }
-
-  componentWillReceiveProps(nextprops) {
-    //...
-  }
-
-  //定义各项操作对应的方法
+/* @/components/JsonSchema/components/SchemaComponents/SchemaOther.js */
+class CustomizedSchemaObject extends PureComponent {
+	/* 将属性值写回schema data中 */
   changeOtherValue = (value, name, data) => {
-    //...
+    data[name] = value;
+    this.context.changeCustomValue(data);
   };
 
-  changeEnumOtherValue = (value, data) => {
-    //...
-  };
-
-  changeEnumDescOtherValue = (value, data) => {
-    //...
-  };
-
-  onChangeCheckBox = (checked, data) => {
-    //...
-  };
-
-  render() {//在渲染时将各项操作链接至对应的方法
+	render() {//在渲染时将各项操作链接至对应的方法
     const { data } = this.props;
     return (
         <div>
@@ -162,13 +154,29 @@ class CustomizedSchemaString extends PureComponent {
   }
 }
 
-//通过一个mapping使得定义与之前设置的schema类型字段相匹配
+//通过mapping使得定义与之前设置的schema类型字段相匹配
 const mapping = data => ({
-  string: <CustomizedSchemaString data={data} />,
+  object: <CustomizedSchemaObject data={data} />,
   //...
-  // lease: <CustomizedSchemaLease data={data} />,
-  // party: <CustomizedSchemaParty data={data} />,
 }[data.type]);
+
+/* advanced settings中的内容封装为CustomItem，定制所需要关注的内容是optionForm */
+const CustomItem = (props, context) => {
+  const { data } = props;
+  const optionForm = mapping(JSON.parse(data));
+
+  return (
+    <div>
+      <div>{optionForm}</div>
+      <div className="default-setting">{LocalProvider('all_setting')}</div>
+      <AceEditor
+        data={data}
+        mode="json"
+        onChange={e => handleInputEditor(e, context.changeCustomValue)}
+      />
+    </div>
+  );
+};
 ```
 
 
@@ -291,7 +299,197 @@ const mapping = data => ({
 
 #### 富文本渲染
 
-braft editor
+项目中使用[Braft Editor](https://braft.margox.cn/)来实现合同文档的在线编辑。Braft Editor是基于[draft-js](https://draftjs.org/)开发的富文本编辑器，支持value和onChange属性，内部使用EditorState对象作为数据格式，可以用典型的受控组件的形式来使用：
+
+```javascript
+import React from 'react'
+// 引入编辑器组件
+import BraftEditor from 'braft-editor'
+// 引入编辑器样式
+import 'braft-editor/dist/index.css'
+
+export default class EditorDemo extends React.Component {
+
+    state = {
+        // 创建一个空的editorState作为初始值
+      	// createEditorState的参数可以是HTML，也可以是JSON
+        editorState: BraftEditor.createEditorState(null)
+    }
+
+    submitContent = () => {
+        // 在编辑器获得焦点时按下ctrl+s会执行此方法
+        // 编辑器内容提交到服务端之前，可直接调用editorState.toHTML()来获取HTML格式的内容
+        const htmlContent = this.state.editorState.toHTML()
+        const result = await saveEditorContent(htmlContent)
+    }
+
+    handleEditorChange = (editorState) => {
+        this.setState({ editorState })
+    }
+
+    render () {
+        const { editorState } = this.state
+        return (
+                <BraftEditor
+                    value={editorState}
+                    onChange={this.handleEditorChange}
+                    onSave={this.submitContent}
+                />
+        )
+    }
+}
+```
+
+EditorState对象无法用于展示也无法用于持久化存储，需要进行如下的数据转换。
+
+```javascript
+const rawString = editorState.toRAW()
+// editorState.toRAW()方法接收一个布尔值参数，用于决定是否返回RAW JSON对象，默认是false
+const rawJSON = editorState.toRAW(true)
+// 将editorState数据转换成html字符串
+const htmlString = editorState.toHTML()
+```
+
+占位符定义
+
+合同中使用占位符来将合同内容和schema表单联系起来，当表单项填入了具体数值，合同中的占位符会被对应的数字替换。
+
+- 简单占位符
+
+json schema editor中原生的string、number、boolean、integer类型对应的占位符格式定义为`${/* label */}`。具体例子如下，
+
+```Javascript
+// JSON schema
+{
+  "sample": {
+    "type": "string"
+  }
+}
+// 占位符
+${sample}
+```
+
+- 表格占位符
+
+由于array类型需要转换为表格，所以它有特殊的占位符格式，定义为`$[/* label */]`，此外，表格占位符需独占一行。具体例子如下，
+
+```javascript
+// JSON schema
+{
+  "sample": {
+    "type": "array",
+    "item": {
+      "type": "string"
+  	}
+  }
+}
+// 占位符
+$[sample]
+```
+
+占位符替换
+
+先用json path对Editor State的所有block的文本内容进行查找，通过正则表达式匹配出符合定义的占位符，再根据不同的占位符类型进行替换。
+
+```javascript
+export function getEditorState({ editorContent, formData }) {
+
+  /* 深拷贝editorContent */
+  let copyContent = JSON.parse(JSON.stringify(editorContent))
+
+  /* 占位符正则表达式 */
+  const fieldRE = /(?:\$\{)(\w+)(?:\})/g
+  const arrayRE = /(?:\$\[)(\w+)(?:\])/
+
+  /* 查找并替换copyContent中的目标字段，替换规则见formDataParser */
+  jp.apply(copyContent, '$..blocks[?(@.text)].text', text => text.replace(fieldRE, (_, field) => formDataParser(formData, field)))
+
+  let preState = BraftEditor.createEditorState(copyContent)
+  
+  jp.apply(copyContent, '$..blocks[?(@.text)]', block => {
+    const match = block.text.match(arrayRE)
+
+    if (match && formData[match[1]]) {
+      let data = formData[match[1]]
+      preState = replacePlaceholder(preState, block.key, data.map(row => Object.keys(row).map(col => row[col])))
+    }
+
+    return block
+  })
+
+  return preState
+}
+```
+
+- 替换简单占位符
+
+直接将占位符替换成对应的数值；如果数值不合法，会对错误进行标识。
+
+```javascript
+const formDataParser = (formData, field) => {
+  let data = formData[field]
+  return data && typeof (data) !== 'object' ? formData[field] : `「${field} error」`
+}
+```
+
+- 替换表格占位符
+
+通过正则表达式找到包含表格占位符的block，再按参数插入对应大小的空表格，最后将数值按顺序填入表格中。
+
+```javascript
+// 将数值填入block
+function fillBlock(editorState, raw) { 
+  let newContentState;
+  try {
+    const text = String(raw)
+    if (text === "undefined" || text === "null") {
+      throw "error"
+    }
+    newContentState = Modifier.replaceText(editorState.getCurrentContent(), editorState.getSelection(), text)
+  }
+  catch (e) {
+    newContentState = editorState.getCurrentContent()
+  }
+  return ContentUtils.createEditorState(newContentState)
+}
+
+// 替换表格占位符
+function replacePlaceholder(editorState, blockKey, data) {
+  let blockState;
+	// 表格行列数
+  const row = data.length
+  const col = data[0].length
+	// 找到包含表格占位符的block
+  try { blockState = editorState.getCurrentContent().getBlockForKey(blockKey); }
+  catch (e) {
+    console.log('no such block')
+    return null;
+  }
+  const block = blockState;
+  // 把光标定位到该block
+  let newEditorState = ContentUtils.selectBlock(editorState, block);
+  // 在该block之后插入空表格
+  newEditorState = TableUtils.insertTable(newEditorState, col, row);
+  // 插入表格后光标定位到表格第一格
+  let selectionBlock = ContentUtils.getSelectionBlock(newEditorState)
+  while (selectionBlock.getType() !== 'table-cell') {
+    console.log('next')
+    newEditorState = ContentUtils.selectNextBlock(newEditorState, selectionBlock)
+    selectionBlock = ContentUtils.getSelectionBlock(newEditorState)
+  }
+	// 填入数值
+  for (let i = 0; i < row; i += 1) {
+    for (let j = 0; j < col; j += 1) {
+      newEditorState = fillBlock(newEditorState, data[i][j])
+      newEditorState = ContentUtils.selectNextBlock(newEditorState, selectionBlock)
+      selectionBlock = ContentUtils.getSelectionBlock(newEditorState)
+    }
+  }
+  // 删除占位符block
+  newEditorState = ContentUtils.removeBlock(newEditorState, block)
+  return newEditorState;
+}
+```
 
 #### chart
 
