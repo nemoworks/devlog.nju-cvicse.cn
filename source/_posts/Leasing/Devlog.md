@@ -35,39 +35,56 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 通过Json Schema Definitions定制若干种数据类型
 
-可能设计的如下，在各项基本类型字段中添加了自定义字段：leaseType以及tel，特别地，字段leaseType表示租赁物拥有自定义类型leaseType，而字段tel即电话号码，类型为基本类型string
+以上述合同的schema为例，根据客户所需待租物品的不同，可以设计自定义类型leaseType，指定待租物品的种类、数量、大小等属性
+
+也可对应租赁起止日期设计类型：date，指定年、月、日（实际实现时可选用正则匹配字符串或设置数值大小等各种方式，此处为示范用法组合了两种方式）
+
+之后用properties引用需要用到的各项属性
 
 ```jsx
-exports.defaultSchema = {
-  string: {
-    type: 'string'
-  },
-  number: {
-    type: 'number'
-  },
-  array: {
-    type: 'array',
-    items: {
-      type: 'string'
+{
+  "definitions": {
+    //...
+    "leaseType": {
+      "type": "object",
+      "properties": {
+        "kind": {"type": {"enum": ["ship", "truck", "van"]}}
+        "amount": {"type": "number"},
+        "size": {"type": {"enum": ["large", "medium", "little"]}}
+      },
+      "required": ["kind", "amount", "size"]
+    },
+    "date": {
+      "type": "object",
+      "properties": {
+        "year": {
+          "type": "string",
+          "pattern": "^[0-9]{4}$"
+        },
+        "month": {
+          "type": "number",
+          "minimum": "1",
+          "maximum": "12"
+        },
+        "day": {
+          "type": "number",
+          "minimun": "1",
+          "maximum": "31"
+        }
+      },
+      "required": ["year", "month", "day"]
     }
-  },
-  object: {
-    type: 'object',
-    properties: {}
-  },
-  boolean: {
-    type: 'boolean'
-  },
-  integer: {
-    type: 'integer'
-  },
-  leaseType: {
-    type: 'leaseType'
-  },
-  tel: {
-    type: 'string'
+  }，
+  
+  "type": "object",
+  
+  "properties": {
+    //...
+    "lease": {"$ref": "#/definitions/leaseType"},
+    "startDate": {"$ref": "#/definitions/date"},
+    "endDate": {"$ref": "#/definitions/date"}
   }
-};
+}
 ```
 
 - 前端界面（schema editor部分）
