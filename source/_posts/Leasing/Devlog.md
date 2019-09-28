@@ -33,22 +33,62 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 - 扩展定义（schema扩展方法，注意说明关联属性定义）
 
-通过json schema definitions定制一种数据类型e.g.电话号码
+通过Json Schema Definitions定制若干种数据类型
 
-```json
-{
-  "type": "string",
-  "pattern": "^[0-9]+$",
-  "minLength": 11,
-  "maxLength": 11
-}//定义了一个由正则表达式匹配的长度为11的字符串
+可能设计的如下，在各项基本类型字段中添加了自定义字段：leaseType以及tel，特别地，字段leaseType表示租赁物拥有自定义类型leaseType，而字段tel即电话号码，类型为基本类型string
+
+```jsx
+exports.defaultSchema = {
+  string: {
+    type: 'string'
+  },
+  number: {
+    type: 'number'
+  },
+  array: {
+    type: 'array',
+    items: {
+      type: 'string'
+    }
+  },
+  object: {
+    type: 'object',
+    properties: {}
+  },
+  boolean: {
+    type: 'boolean'
+  },
+  integer: {
+    type: 'integer'
+  },
+  leaseType: {
+    type: 'leaseType'
+  },
+  tel: {
+    type: 'string'
+  }
+};
 ```
 
 - 前端界面（schema editor部分）
 
-添加一层层属性，具体的类型定制 => advanced settings
+（这段表述还需要修改）
 
-```
+在确定template之后，可以通过设定类型字段来配置当前用户所需schema的各项内容
+
+如下使用metaSchema将leaseType和tel字段加入进可用字段列表
+
+```jsx
+/* schemaEditor抽屉 */
+    const schemaEditorDrawer = (
+      <Drawer title={formatMessage({ id: 'templateEditor.schemaEditor' })} placement="right" closable={false} onClose={_ => this.setState({ schemaVisible: false })} visible={this.state.schemaVisible} width="50%">
+        <SchemaEditor
+          data={JSON.stringify(template.content.schema)}
+          onChange={schema => this.updateSchemaHandler(template, schema)}
+          metaSchema={['string', 'number', 'array', 'object', 'boolean', 'integer', 'tel', 'leaseType']}
+        />
+      </Drawer>
+    )
 
 ```
 
@@ -56,10 +96,62 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 - 高级组件（advanced setting部分）
 
-定制某种类型的advanced settings e.g. popup
+定制某种类型的advanced settings，然后在其与先前schema中创建的对应字段之间建立映射
 
-```
+如下是对String类型的各项操作的定制：
 
+```jsx
+class CustomizedSchemaString extends PureComponent {
+  constructor(props, context) {
+    //...
+  }
+
+  componentWillReceiveProps(nextprops) {
+    //...
+  }
+
+  //定义各项操作对应的方法
+  changeOtherValue = (value, name, data) => {
+    //...
+  };
+
+  changeEnumOtherValue = (value, data) => {
+    //...
+  };
+
+  changeEnumDescOtherValue = (value, data) => {
+    //...
+  };
+
+  onChangeCheckBox = (checked, data) => {
+    //...
+  };
+
+  render() {//在渲染时将各项操作链接至对应的方法
+    const { data } = this.props;
+    return (
+        <div>
+      	//...
+          <Col span={20}>
+            <Input
+              value={data.default}
+              placeholder={LocalProvider('default')}
+              onChange={e => this.changeOtherValue(e.target.value, 'default', data)}
+              />
+          </Col>
+	</div>
+	//...
+    );
+  }
+}
+
+//通过一个mapping使得定义与之前设置的schema类型字段相匹配
+const mapping = data => ({
+  string: <CustomizedSchemaString data={data} />,
+  //...
+  // lease: <CustomizedSchemaLease data={data} />,
+  // party: <CustomizedSchemaParty data={data} />,
+}[data.type]);
 ```
 
 
