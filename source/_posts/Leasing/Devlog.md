@@ -185,41 +185,69 @@ const CustomItem = (props, context) => {
 
 创建schema的接口
 
-所有的schema放在特定的collection下
+在实际运用时，若要创建一个合同项，先通过创建模板template封装schema，再选择对应的template创建所需要的合同，对应接口为：
 
-版本维护，可以选择维护版本或者不维护版本
+```java
+Template createTemplate(TemplateRequest templateRequest);
+```
+
+所有的schema放在特定的collection下（后端TODO）
+
+版本维护实现基于JaVers，JaVers是一个轻量级，完全开源的Java库，用于追踪和记录数据中的更改。它可以配合repository使用，只需要添加一行注解`@JaversSpringDataAuditable`即可
+
+```java
+@JaversSpringDataAuditable
+public interface TemplateRepository extends MongoRepository<Template, String> {
+	//...
+}
+```
+
+当数据库中有数据发生修改时，JaVers会自动追踪和记录数据库中发生的修改，存为特定数据类型Snapshot，在获取时可以通过版本号来访问到某次修改过后的数据内容
+
+在创建schema时，JaVers会对应生成初始版本记录
 
 #### 删除schema
 
-删除作为一种标记，而不是真的删除掉
+删除作为一种标记，而不是真的从数据库中将schema删除
+
+若直接将schema删除，在之后就无法从对应生成的合同中查看该schema
+
+实现方式为在schema中添加一个是否删除字段delete，值为true时视为删除（TODO）
 
 接口名称
 
 ```java
-
+ public void deleteTemplate(String id) throws TemplateNotFoundException;
 ```
 
 #### 更新schema
 
 接口名称
 
+```java
+public Template updateTemplate(TemplateRequest templateRequest, String id) throws TemplateNotFoundException;
 ```
 
-```
-
-版本维护，也可以选择维护版本或者不维护版本
+此时的更新操作会被JaVers识别，记录到版本历史中
 
 #### 查询schema（后台接口）
 
-包括查某个版本，关联查询
+根据模版号和提交编号查询对应schema：
 
-条件复合
-
-接口名称
-
+```java
+public Template getTemplateWithJaversCommitId(String templateId, String commitId) throws TemplateNotFoundException{
+        Template template = this.getTemplate(templateId);
+        JqlQuery jqlQuery= QueryBuilder.byInstance(template).build();
+        List<CdoSnapshot> snapshots = javers.findSnapshots(jqlQuery);
+        for(CdoSnapshot snapshot:snapshots){
+            if(snapshot.getCommitId().getMajorId()== Integer.parseInt(commitId))
+                return JSON.parseObject(javers.getJsonConverter().toJson(snapshot.getState()),Template.class);
+        }
+        return null;
+    }
 ```
 
-```
+条件复合、关联查询
 
 ### document管理
 
