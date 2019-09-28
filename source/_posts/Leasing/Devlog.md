@@ -247,7 +247,9 @@ public Template getTemplateWithJaversCommitId(String templateId, String commitId
     }
 ```
 
-条件复合、关联查询
+条件复合（同时选取多个属性对于当前schema进行查找操作）：
+
+关联查询（利用schema间的关联进行查找，例:从合同中查询该合同对应的客户信息）:
 
 ### document管理
 
