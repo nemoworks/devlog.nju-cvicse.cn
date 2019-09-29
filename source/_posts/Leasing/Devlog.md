@@ -54,7 +54,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 之后用properties引用需要用到的各项属性
 
-```jsx
+```json
 {
   "definitions": {
     //...
@@ -108,7 +108,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 如下使用metaSchema将leaseType和tel字段加入进可用字段列表
 
-```jsx
+``` jsx
 import schemaEditor from '@/components/JsonSchema/index.js';
 /* schema editor的配置属性 */
 const config = {
