@@ -11,14 +11,14 @@ nav:
   关于: /about
 
 # favicon
-favicon: http://cdn.nemoworks.info/devlog.nju-cvicse.cn/images/favicon.ico
+favicon: https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/images/favicon.ico
 
 # Profile
 nickname: devlog@nju-cvicse
 
 ### this variable is MarkDown form.
-description: Develop ***fun*** @ **NJU-Cvicse**!
-avatar: http://cdn.nemoworks.info/devlog.nju-cvicse.cn/images/fs-logo.webp?
+description: Develop ***fun*** @ **NJU-CVICSE**!
+avatar: https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/images/fs-logo.webp
 
 # main menu navigation
 ## links key words should not be changed.
@@ -88,12 +88,12 @@ time_format: H:mm:ss
 
 # stylesheets loaded in the <head>
 stylesheets:
-  - http://cdn.nemoworks.info/devlog.nju-cvicse.cn/css/style.css?
+  - https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/css/style.css
 
 # scripts loaded in the end of the body
 scripts:
-  - http://cdn.nemoworks.info/devlog.nju-cvicse.cn/js/script.js
-  - http://cdn.nemoworks.info/devlog.nju-cvicse.cn/js/tocbot.min.js
+  - https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/js/script.js
+  - https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/js/tocbot.min.js
     # tscanlin/tocbot: Build a table of contents from headings in an HTML document.
     # https://github.com/tscanlin/tocbot
 
