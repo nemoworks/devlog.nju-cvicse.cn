@@ -1,14 +1,14 @@
 # html lang
-language: en
+language: cn
 
 # Header
 navname: 开发日志
 
 # navigatior items
 nav:
-  Leasing: /categories/Leasing
-  Others: /categories/Others
-  About: /about
+  租赁: /categories/Leasing
+  其他: /categories/Others
+  关于: /about
 
 # favicon
 favicon: http://cdn.nemoworks.info/devlog.nju-cvicse.cn/images/favicon.ico
@@ -18,7 +18,7 @@ nickname: devlog@nju-cvicse
 
 ### this variable is MarkDown form.
 description: Develop ***fun*** @ **NJU-Cvicse**!
-avatar: http://cdn.nemoworks.info/devlog.nju-cvicse.cn/images/logo.png
+avatar: http://cdn.nemoworks.info/devlog.nju-cvicse.cn/images/fs-logo.webp?
 
 # main menu navigation
 ## links key words should not be changed.
@@ -88,7 +88,7 @@ time_format: H:mm:ss
 
 # stylesheets loaded in the <head>
 stylesheets:
-  - http://cdn.nemoworks.info/devlog.nju-cvicse.cn/css/style.css
+  - http://cdn.nemoworks.info/devlog.nju-cvicse.cn/css/style.css?
 
 # scripts loaded in the end of the body
 scripts:
