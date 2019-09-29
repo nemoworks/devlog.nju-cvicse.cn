@@ -90,8 +90,6 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 - 前端界面（schema editor部分）
 
-（这段表述还需要修改）
-
 在确定template之后，可以通过设定类型字段来配置当前用户所需schema的各项内容
 
 如下使用metaSchema将leaseType和tel字段加入进可用字段列表
@@ -217,7 +215,7 @@ public interface TemplateRepository extends MongoRepository<Template, String> {
 接口名称
 
 ```java
- public void deleteTemplate(String id) throws TemplateNotFoundException;
+public void deleteTemplate(String id) throws TemplateNotFoundException;
 ```
 
 #### 更新schema
@@ -247,9 +245,22 @@ public Template getTemplateWithJaversCommitId(String templateId, String commitId
     }
 ```
 
-条件复合（同时选取多个属性对于当前schema进行查找操作）：
+条件复合：（TODO）
 
-关联查询（利用schema间的关联进行查找，例:从合同中查询该合同对应的客户信息）:
+关联查询（利用属性关联性进行查找，例:从合同中查询该合同对应的CashFlow信息）:
+
+```java
+List<AggregationOperation> operations = Lists.newArrayList();
+        operations.add(Aggregation.match(Criteria.where("_id").is(id)));  //根据id查询到具体的contract
+        
+        LookupOperation lookupOperation = LookupOperation.newLookup().from("CashFlow")
+                .localField("content.cashFlowId")
+                .foreignField("name")
+                .as("content.cashFlowId");  //用lookup，根据Contract表中的cashFlowId映射到CashFlow这张表中的name，从而获取整个cashFlow的内容
+        operations.add(lookupOperation);
+```
+
+
 
 ### document管理
 
@@ -257,19 +268,52 @@ public Template getTemplateWithJaversCommitId(String templateId, String commitId
 
 - 数据说明（document数据说明）
 
-与客户schema和合同schema对应的json document是什么样
+以上文中第一个创建的合同schema为例，schema与对应数据组合成为document，一个合同的document如下：
+
+```json
+{
+  "customer_id": "0001",
+  "lease": {
+    "kind": "ship",
+    "amount": 2,
+    "size": "large"
+  },
+  "startDate": {
+    "year": "2019",
+    "month": 1,
+    "day": 1
+  },
+  "endDate": {
+    "year": "2019",
+    "month": 12,
+    "day": 1
+  },
+  //...
+}
+```
 
 - 前端界面（document editor部分）
 
-用户怎么从schema生成document
+（TODO：加入操作时的截图）
 
-从schema渲染出form，原生单列form
+以合同为例，用户从合同schema生成document需要以下几步
+
+1. 通过选择template选择对应schema
+2. 使用该schema生成form，供用户填写数据
+3. 获取用户填写的数据，生成对应document
 
 - 高级组件（advanced component部分）
 
-定制属性
+针对不同的待填项，可以设置其属性（包括填写类型，填写方式等）
 
-根据属性选择渲染component
+```java
+ /* 自定义type */
+    switch(schema["type"]) {
+      case "party": return <PartyField {...formProps} />;
+      case "lease": return <LeaseField {...formProps} />;
+      default: return DefaultTemplate(formProps);
+    }
+```
 
 - 后台接口（document管理接口，统一接口）
 
