@@ -27,22 +27,29 @@ date: 2019-09-025 23:36:15
 
 Json Schema定义了一套词汇和规则，用来定义Json元数据。这些元数据定义给出了Json数据需要满足的各项规范（成员、结构、类型等）。
 
-以一个合同的schema框架为例，可能的设计如下：
+以一个合同和客户的schema框架为例，可能的设计如下：
 
 ``` json
-{
+{//contract
   "customer_id": {"type": "string"},//客户编号，是schema中对客户数据的引用方式，表示该客户签订了本份合同
-  "lease": {"type": "leaseType"},//待租物品，定制类型leaseType
-  "ship": {
-    "type": "object",
-   	"amount": {"type": "number"},
-   	"size": {"type": "size"}
-  },//待租物品为ship时，可定制字段ship，指定ship的数量及大小
+  "leases": [
+    {"type": "leaseType"},
+    {"type": "leaseType"},
+    //...可以有任意项
+  ],//待租物品，定制类型leaseType
   "startDate": {"type": "date"},
   "endDate": {"type": "date"}//租赁起止日期，类型为date
   //...可按需求添加其余字段及类型
 }
+
+{//customer
+  "id": {"type": "string"},
+  "name": {"type": "string"},
+  //...
+}
 ```
+
+{% qnimg customer_contract.png %}
 
 - 扩展定义（schema扩展方法，注意说明关联属性定义）
 
@@ -50,9 +57,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 以上述合同的schema为例，根据客户所需待租物品的不同，可以设计自定义类型leaseType，指定待租物品的种类、数量、大小等属性
 
-也可对应租赁起止日期设计类型：date，指定年、月、日（实际实现时可选用正则匹配字符串或设置数值大小等各种方式，此处为示范用法组合了两种方式）
-
-之后用properties引用需要用到的各项属性
+也可对应租赁起止日期设计类型：date，通过设置format来使其符合日期定义
 
 ```json
 {
@@ -61,39 +66,34 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
     "leaseType": {
       "type": "object",
       "properties": {
-        "kind": {"type": {"enum": ["ship", "truck", "van"]}}
+        "kind": {"type": {"enum": ["ship", "truck", "van"]}},
         "amount": {"type": "number"},
         "size": {"type": {"enum": ["large", "medium", "little"]}}
       },
       "required": ["kind", "amount", "size"]
     },
     "date": {
-      "type": "object",
-      "properties": {
-        "year": {
-          "type": "string",
-          "pattern": "^[0-9]{4}$"
-        },
-        "month": {
-          "type": "number",
-          "minimum": "1",
-          "maximum": "12"
-        },
-        "day": {
-          "type": "number",
-          "minimun": "1",
-          "maximum": "31"
-        }
-      },
-      "required": ["year", "month", "day"]
+      "type": "string",
+      "format": "date"
     }
-  }，
-  
+  }
+}
+```
+
+对应schema可以引用需要用到的各项属性，如下是一个contract的例子：
+
+```json
+{
   "type": "object",
   
   "properties": {
     //...
-    "lease": {"$ref": "#/definitions/leaseType"},
+    "leases": [
+      {"$ref": "#/definitions/leaseType"},
+    	{"$ref": "#/definitions/leaseType"},
+      {"$ref": "#/definitions/leaseType"},
+      //...
+    ],
     "startDate": {"$ref": "#/definitions/date"},
     "endDate": {"$ref": "#/definitions/date"}
   }
@@ -115,8 +115,8 @@ const config = {
     tel: {
       type: 'rate',
     },
-    leaseType: {
-      type: 'lease',
+    lease: {
+      type: 'leaseType',
     }
   }
 };
@@ -145,8 +145,7 @@ class CustomizedSchemaObject extends PureComponent {
     data[name] = value;
     this.context.changeCustomValue(data);
   };
-
-	render() {//在渲染时将各项操作链接至对应的方法
+  render() {//在渲染时将各项操作链接至对应的方法
     const { data } = this.props;
     return (
         <div>
@@ -193,12 +192,19 @@ const CustomItem = (props, context) => {
 
 - 后台接口（schema管理接口）
 
-创建schema的接口
+创建schema的接口（后期会修改，template改回schema）
 
 在实际运用时，若要创建一个合同项，先通过创建模板template封装schema，再选择对应的template创建所需要的合同，对应接口为：
 
 ```java
-Template createTemplate(TemplateRequest templateRequest);
+public Template createTemplate(TemplateRequest templateRequest){
+  logger.info("TemplateRequest saved");
+  logger.info(templateRequest.getContent().toJSONString());
+  Template template =new Template(templateRequest.getContent());
+  Template template1 = templateRepository.save(template);
+  System.out.println("================"+template1.getId());
+  return template1;
+}
 ```
 
 所有的schema放在特定的collection下（后端TODO）
@@ -224,18 +230,33 @@ public interface TemplateRepository extends MongoRepository<Template, String> {
 
 实现方式为在schema中添加一个是否删除字段delete，值为true时视为删除（TODO）
 
-接口名称
+接口名称及实现
 
 ```java
-public void deleteTemplate(String id) throws TemplateNotFoundException;
+public void deleteTemplate(String id) throws TemplateNotFoundException{
+  if(!this.templateRepository.findById(id).isPresent())
+    throw new TemplateNotFoundException("TemplateRequest Not Found in templateRepository.");
+  logger.info("TemplateRequest deleted");
+  this.templateRepository.deleteById(id);
+}
 ```
 
 #### 更新schema
 
-接口名称
+接口名称及实现
 
 ```java
-public Template updateTemplate(TemplateRequest templateRequest, String id) throws TemplateNotFoundException;
+public Template updateTemplate(TemplateRequest templateRequest, String id) throws TemplateNotFoundException{
+  this.templateRepository.findById(id).ifPresent(template -> {
+    template.content = templateRequest.getContent();
+    this.templateRepository.save(template);
+  });
+  if(this.templateRepository.findById(id).isPresent()){
+    return this.templateRepository.findById(id).get();
+  }else {
+    throw new TemplateNotFoundException("TemplateRequest Not Found in templateRepository.");
+  }
+}
 ```
 
 此时的更新操作会被JaVers识别，记录到版本历史中
@@ -246,15 +267,15 @@ public Template updateTemplate(TemplateRequest templateRequest, String id) throw
 
 ```java
 public Template getTemplateWithJaversCommitId(String templateId, String commitId) throws TemplateNotFoundException{
-        Template template = this.getTemplate(templateId);
-        JqlQuery jqlQuery= QueryBuilder.byInstance(template).build();
-        List<CdoSnapshot> snapshots = javers.findSnapshots(jqlQuery);
-        for(CdoSnapshot snapshot:snapshots){
-            if(snapshot.getCommitId().getMajorId()== Integer.parseInt(commitId))
-                return JSON.parseObject(javers.getJsonConverter().toJson(snapshot.getState()),Template.class);
-        }
-        return null;
-    }
+  Template template = this.getTemplate(templateId);
+  JqlQuery jqlQuery= QueryBuilder.byInstance(template).build();
+  List<CdoSnapshot> snapshots = javers.findSnapshots(jqlQuery);
+  for(CdoSnapshot snapshot:snapshots){
+    if(snapshot.getCommitId().getMajorId()== Integer.parseInt(commitId))
+      return JSON.parseObject(javers.getJsonConverter().toJson(snapshot.getState()),Template.class);
+  }
+  return null;
+}
 ```
 
 条件复合：（TODO）
@@ -263,13 +284,12 @@ public Template getTemplateWithJaversCommitId(String templateId, String commitId
 
 ```java
 List<AggregationOperation> operations = Lists.newArrayList();
-        operations.add(Aggregation.match(Criteria.where("_id").is(id)));  //根据id查询到具体的contract
-        
-        LookupOperation lookupOperation = LookupOperation.newLookup().from("CashFlow")
-                .localField("content.cashFlowId")
-                .foreignField("name")
-                .as("content.cashFlowId");  //用lookup，根据Contract表中的cashFlowId映射到CashFlow这张表中的name，从而获取整个cashFlow的内容
-        operations.add(lookupOperation);
+operations.add(Aggregation.match(Criteria.where("_id").is(id)));  //根据id查询到具体的contract
+LookupOperation lookupOperation = LookupOperation.newLookup().from("CashFlow")
+  .localField("content.cashFlowId")
+  .foreignField("name")
+  .as("content.cashFlowId");  //用lookup，根据Contract表中的cashFlowId映射到CashFlow这张表中的name，从而获取整个cashFlow的内容
+operations.add(lookupOperation);
 ```
 
 
