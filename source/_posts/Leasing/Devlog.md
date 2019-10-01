@@ -32,11 +32,12 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 ``` json
 {//contract
   "customer_id": {"type": "string"},//客户编号，是schema中对客户数据的引用方式，表示该客户签订了本份合同
-  "leases": [
-    {"type": "leaseType"},
-    {"type": "leaseType"},
-    //...可以有任意项
-  ],//待租物品，定制类型leaseType
+  "leases": {
+    "type": "array",
+    "items": {
+      "type": "leaseType"
+    }
+  },//待租物品，定制类型leaseType
   "startDate": {"type": "date"},
   "endDate": {"type": "date"}//租赁起止日期，类型为date
   //...可按需求添加其余字段及类型
@@ -88,12 +89,10 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
   
   "properties": {
     //...
-    "leases": [
-      {"$ref": "#/definitions/leaseType"},
-    	{"$ref": "#/definitions/leaseType"},
-      {"$ref": "#/definitions/leaseType"},
-      //...
-    ],
+    "leases": {
+      "type": "array",
+      "items": {"$ref": "#/definitions/leaseType"}
+    },
     "startDate": {"$ref": "#/definitions/date"},
     "endDate": {"$ref": "#/definitions/date"}
   }
