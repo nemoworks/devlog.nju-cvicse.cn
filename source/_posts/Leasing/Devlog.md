@@ -34,13 +34,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
   "title": "Contract_Schema_1",
   "description": "A Sample of Contract Schema",
   "type": "object",
-  "required": [
-    "customer_id",
-    "leases",
-    "startDate",
-    "endDate",
-    //...
-  ],
+  
   properties: {
     "customer_id": {"type": "string"},//客户编号，是schema中对客户数据的引用方式，表示该客户签订了本份合同
     "leases": {
@@ -63,11 +57,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
   "title": "Customer_Schema_1",
   "description": "A Sample of Customer Schema",
   "type": "object",
-  "required": [
-    "id",
-    "name",
-    //...
-  ],
+  
   "properties": {
     "id": {"type": "string"},
     "name": {"type": "string"},
@@ -95,9 +85,42 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
     "leaseType": {
       "type": "object",
       "properties": {
-        "kind": {"type": {"enum": ["ship", "truck", "van"]}},
+        "kind": {
+          "type": "string", 
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": ["ship"],
+              "title": "ship"
+            },
+            {
+              "type": "string",
+              "enum": ["truck"],
+              "title": "truck"
+            }
+          ]
+        },
         "amount": {"type": "number"},
-        "size": {"type": {"enum": ["large", "medium", "little"]}}
+        "size": {
+          "type": "string", 
+          "anyOf": [
+            {
+              "type": "string",
+              "enum": ["large"],
+              "title": "large"
+            },
+            {
+              "type": "string",
+              "enum": ["medium"],
+              "title": "medium"
+            },
+            {
+              "type": "string",
+              "enum": ["little"],
+              "title": "little"
+            }
+          ]
+        }
       },
       "required": ["kind", "amount", "size"]
     },
@@ -109,10 +132,12 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 }
 ```
 
-对应schema可以引用需要用到的各项属性，如下是一个contract的例子：
+对应schema可以引用需要用到的各项属性，对应可修改上述contract schema为：
 
 ```json
 {
+  "title": "Contract_Schema_1",
+  "description": "A Sample of Contract Schema",
   "type": "object",
   
   "properties": {
@@ -156,7 +181,9 @@ render(
 )
 ```
 
+以先前定义的contract为schema模板可生成对应的表单form，如下例：
 
+{% qnimg schema_form.png %}
 
 - 高级组件（advanced setting部分）
 
