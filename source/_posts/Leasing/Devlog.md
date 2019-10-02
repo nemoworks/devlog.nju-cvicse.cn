@@ -27,28 +27,56 @@ date: 2019-09-025 23:36:15
 
 Json Schema定义了一套词汇和规则，用来定义Json元数据。这些元数据定义给出了Json数据需要满足的各项规范（成员、结构、类型等）。
 
-以一个合同和客户的schema框架为例，可能的设计如下：
+以一个合同的schema框架为例，可能的设计如下：
 
 ``` json
-{//contract
-  "customer_id": {"type": "string"},//客户编号，是schema中对客户数据的引用方式，表示该客户签订了本份合同
-  "leases": {
-    "type": "array",
-    "items": {
-      "type": "leaseType"
-    }
-  },//待租物品，定制类型leaseType
-  "startDate": {"type": "date"},
-  "endDate": {"type": "date"}//租赁起止日期，类型为date
-  //...可按需求添加其余字段及类型
-}
-
-{//customer
-  "id": {"type": "string"},
-  "name": {"type": "string"},
-  //...
+{
+  "title": "Contract_Schema_1",
+  "description": "A Sample of Contract Schema",
+  "type": "object",
+  "required": [
+    "customer_id",
+    "leases",
+    "startDate",
+    "endDate",
+    //...
+  ],
+  properties: {
+    "customer_id": {"type": "string"},//客户编号，是schema中对客户数据的引用方式，表示该客户签订了本份合同
+    "leases": {
+      "type": "array",
+      "items": {
+        "type": "leaseType"
+      }
+    },//待租物品，定制类型leaseType
+    "startDate": {"type": "date"},
+    "endDate": {"type": "date"}//租赁起止日期，类型为date
+    //...可按需求添加其余字段及类型
+  }
 }
 ```
+
+以一个客户的schema为例，可能的设计如下：
+
+```json
+{
+  "title": "Customer_Schema_1",
+  "description": "A Sample of Customer Schema",
+  "type": "object",
+  "required": [
+    "id",
+    "name",
+    //...
+  ],
+  "properties": {
+    "id": {"type": "string"},
+    "name": {"type": "string"},
+    //...
+  }
+}
+```
+
+二者之间的关系可由如下类图表示：
 
 {% qnimg customer_contract.png %}
 
