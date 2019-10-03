@@ -35,7 +35,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
   "description": "A Sample of Contract Schema",
   "type": "object",
   
-  properties: {
+  "properties": {
     "customer_id": {"type": "string"},//客户编号，是schema中对客户数据的引用方式，表示该客户签订了本份合同
     "leases": {
       "type": "array",
@@ -159,26 +159,25 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 如下使用metaSchema将leaseType和tel字段加入进可用字段列表
 
 ``` jsx
+import React from 'react';
+/* 引入schema编辑器 */
 import schemaEditor from '@/components/JsonSchema/index.js';
+/* 引入自定义类型 */
+import { definitions } from './definitions.json';
 /* schema editor的配置属性 */
-const config = {
-  /* 自定义类型的初始值；必填，否则自定义类型会报错； */
-  defaultSchema: {
-    tel: {
-      type: 'rate',
-    },
-    lease: {
-      type: 'leaseType',
-    }
-  }
-};
+const config = { defaultSchema: definitions };
 const SchemaEditor = schemaEditor(config);
-render(
-  /* 使用metaSchema将leaseType和tel字段加入进可用字段列表 */
-  <SchemaEditor data={schema} onChange
-    metaSchema={['string', 'number', 'array', 'object', 'boolean', 'integer', 'tel', 'leaseType']} />,
-	document.getElementById('root')
-)
+
+class TemplateEditor extends React.Component {
+  //...
+	render() {
+    return (
+      //...
+      <SchemaEditor />
+			//...
+    )
+  }
+}
 ```
 
 以先前定义的contract为schema模板可生成对应的表单form，如下例：
@@ -192,54 +191,32 @@ render(
 如下是对Object类型的各项操作的定制：
 
 ```jsx
-/* @/components/JsonSchema/components/SchemaComponents/SchemaOther.js */
-class CustomizedSchemaObject extends PureComponent {
-	/* 将属性值写回schema data中 */
-  changeOtherValue = (value, name, data) => {
-    data[name] = value;
-    this.context.changeCustomValue(data);
-  };
-  render() {//在渲染时将各项操作链接至对应的方法
-    const { data } = this.props;
+import React from 'react';
+/* 引入schema编辑器 */
+import schemaEditor from '@/components/JsonSchema/index.js';
+/* 引入自定义类型 */
+import { definitions } from './definitions.json';
+/* schema editor的配置属性 */
+const config = { defaultSchema: definitions };
+const SchemaEditor = schemaEditor(config);
+
+class TemplateEditor extends React.Component {
+  //...
+  advancedTemplate = data => {
+    switch(data.type) {
+      case "leaseType": return <SchemaLease data={data} />;
+      case "object": return <Input placeholder="object"></Input>;
+      default: return <Button>null</Button>;
+    }
+  
+	render() {
     return (
-        <div>
-      	//...
-          <Col span={20}>
-            <Input
-              value={data.default}
-              placeholder={LocalProvider('default')}
-              onChange={e => this.changeOtherValue(e.target.value, 'default', data)}
-              />
-          </Col>
-	</div>
-	//...
-    );
+      //...
+      <SchemaEditor advancedTemplate={this.advancedTemplate}/>
+			//...
+    )
   }
 }
-
-//通过mapping使得定义与之前设置的schema类型字段相匹配
-const mapping = data => ({
-  object: <CustomizedSchemaObject data={data} />,
-  //...
-}[data.type]);
-
-/* advanced settings中的内容封装为CustomItem，定制所需要关注的内容是optionForm */
-const CustomItem = (props, context) => {
-  const { data } = props;
-  const optionForm = mapping(JSON.parse(data));
-
-  return (
-    <div>
-      <div>{optionForm}</div>
-      <div className="default-setting">{LocalProvider('all_setting')}</div>
-      <AceEditor
-        data={data}
-        mode="json"
-        onChange={e => handleInputEditor(e, context.changeCustomValue)}
-      />
-    </div>
-  );
-};
 ```
 
 - 后台接口（schema管理接口）
@@ -531,7 +508,7 @@ export default class EditorDemo extends React.Component {
 }
 ```
 
-EditorState对象无法用于展示也无法用于持久化存储，需要进行如下的数据转换。
+不过EditorState对象无法用于展示也无法用于持久化存储，所以想把编辑器内容存进数据库就需要进行如下的数据转换：
 
 ```javascript
 const rawString = editorState.toRAW()
@@ -580,7 +557,7 @@ $[sample]
 
 占位符替换
 
-先用json path对Editor State的所有block的文本内容进行查找，通过正则表达式匹配出符合定义的占位符，再根据不同的占位符类型进行替换。
+在Braft Editor中，文本以block的形式存于Editor State中，所以先用json path对Editor State的所有block的文本内容进行查找，通过正则表达式匹配出符合定义的占位符，再根据不同的占位符类型进行替换。
 
 ```javascript
 export function getEditorState({ editorContent, formData }) {
@@ -614,7 +591,7 @@ export function getEditorState({ editorContent, formData }) {
 
 - 替换简单占位符
 
-直接将占位符替换成对应的数值；如果数值不合法，会对错误进行标识。
+用replace方法直接将占位符替换成对应的数值；如果数值不合法，会对错误进行标识。
 
 ```javascript
 const formDataParser = (formData, field) => {
@@ -625,7 +602,7 @@ const formDataParser = (formData, field) => {
 
 - 替换表格占位符
 
-通过正则表达式找到包含表格占位符的block，再按参数插入对应大小的空表格，最后将数值按顺序填入表格中。
+通过正则表达式找到包含表格占位符的block，再按二维数组的大小插入空表格，最后将数值按顺序填入表格中，最后将占位符block删去。
 
 ```javascript
 // 将数值填入block
