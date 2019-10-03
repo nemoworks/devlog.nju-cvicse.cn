@@ -154,9 +154,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 - 前端界面（schema editor部分）
 
-在确定template之后，可以通过设定类型字段来配置当前用户所需schema的各项内容
-
-如下使用metaSchema将leaseType和tel字段加入进可用字段列表
+用户可以通过schema editor来构建合同的schema，这个schema会经由template封装成为用户建立表单项时的模板
 
 ``` jsx
 import React from 'react';
