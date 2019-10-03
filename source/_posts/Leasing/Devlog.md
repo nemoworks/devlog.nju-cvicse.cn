@@ -242,8 +242,6 @@ const CustomItem = (props, context) => {
 };
 ```
 
-
-
 - 后台接口（schema管理接口）
 
 创建schema的接口（后期会修改，template改回schema）
@@ -282,7 +280,7 @@ public interface TemplateRepository extends MongoRepository<Template, String> {
 
 若直接将schema删除，在之后就无法从对应生成的合同中查看该schema
 
-实现方式为在schema中添加一个是否删除字段delete，值为true时视为删除（TODO）
+实现方式为在schema中添加一个是否删除字段delete，值为true时视为删除（TODO：添加对字段的操作）
 
 接口名称及实现
 
@@ -358,22 +356,15 @@ operations.add(lookupOperation);
 
 ```json
 {
-  "customer_id": "0001",
-  "lease": {
-    "kind": "ship",
-    "amount": 2,
-    "size": "large"
-  },
-  "startDate": {
-    "year": "2019",
-    "month": 1,
-    "day": 1
-  },
-  "endDate": {
-    "year": "2019",
-    "month": 12,
-    "day": 1
-  },
+  "leases": [
+    {
+      "kind": "ship",
+      "amount": 1,
+      "size": "medium"
+    }
+  ],
+  "startDate": "2019-02-02",
+  "endDate": "2019-06-09",
   //...
 }
 ```
@@ -401,53 +392,93 @@ operations.add(lookupOperation);
     }
 ```
 
-- 后台接口（document管理接口，统一接口）
+- 后台接口（document管理接口，统一接口，后续所有接口均以合同的document为例）
 
-创建document
+创建document，实现方式为从某个版本的schema创建，接口如下：
 
-从某个版本的schema创建
-
-版本维护
-
-接口
-
+```java
+public Contract createContractByTemplateId(ContractRequest contractRequest,String templateId,String commitId){
+  logger.info("create contract from templateId"+templateId);
+  Contract contract = new Contract(contractRequest.getContent());
+  contract.setBasicElements(contractRequest.getBasicElements());
+  contract.setTemplateId(templateId);
+  contract.setCommitId(commitId);
+  contract.setProcessInstanceId(contractRequest.getProcessInstanceId());
+  contractRepository.save(contract);
+  logger.info("new Contract's id is "+contractRepository.findByTemplateIdAndCommitId(templateId,commitId).getId());
+  return contractRepository.findByTemplateIdAndCommitId(templateId,commitId);
+}
 ```
 
+版本维护同样通过JaVers实现，使用JaVers定义repository后，JaVers会自动监听数据修改：
+
+```java
+@JaversSpringDataAuditable
+public interface ContractRepository extends MongoRepository<Contract, String> {
+	//...
+}
 ```
-
-
 
 #### 删除document
 
-删除标记
+document中也会有一个是否删除字段delete，删除操作实质上为修改该字段为true，以备后续需要时进行查看
 
-接口
+接口如下（TODO：添加对字段的操作）：
 
+```java
+public void deleteContract(String id) throws ContractNotFoundException {
+  if (!this.contractRepository.findById(id).isPresent())
+    throw new ContractNotFoundException("ContractRequest Not Found in contractRepository.");
+  logger.info("contract deleted");
+  this.contractRepository.deleteById(id);
+}
 ```
-
-```
-
-
 
 #### 更新document
 
-版本维护
+更新document时由于数据发生变化，JaVers会记录修改内容，实现版本维护
 
-接口
+接口如下：
 
+```java
+public Contract updateContract(ContractRequest contractRequest, String id) throws ContractNotFoundException {
+  this.contractRepository.findById(id).ifPresent(contract -> {
+    contract.content = contractRequest.getContent();
+    contract.setBasicElements(contractRequest.getBasicElements());
+    contract.setProcessInstanceId(contractRequest.getProcessInstanceId());
+    this.contractRepository.save(contract);
+  });
+  if (!this.contractRepository.findById(id).isPresent()) {
+    throw new ContractNotFoundException("ContractRequest Not Found in contractRepository.");
+  }
+  return this.contractRepository.findById(id).get();
+}
 ```
-
-```
-
-接口实现
 
 #### 查询document（后台接口）
 
-包括查某个版本，关联查询
+查询某个版本：
 
-条件复合
+```java
+public Contract getContractWithJaversCommitId(String contractId, String commitId) throws ContractNotFoundException {
+  Contract contract = this.getContract(contractId);
+  JqlQuery jqlQuery = QueryBuilder.byInstance(contract).build();
+  List<CdoSnapshot> snapshots = javers.findSnapshots(jqlQuery);
+  for (CdoSnapshot snapshot : snapshots) {
+    if (snapshot.getCommitId().getMajorId() == Integer.parseInt(commitId))
+      return JSON.parseObject(javers.getJsonConverter().toJson(snapshot.getState()), Contract.class);
+  }
+  return null;
+}
+```
 
-接口名称及实现
+条件复合：
+
+```java
+
+```
+
+关联查询：
 
 ```
 
