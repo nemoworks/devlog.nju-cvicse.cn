@@ -85,42 +85,9 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
     "leaseType": {
       "type": "object",
       "properties": {
-        "kind": {
-          "type": "string", 
-          "anyOf": [
-            {
-              "type": "string",
-              "enum": ["ship"],
-              "title": "ship"
-            },
-            {
-              "type": "string",
-              "enum": ["truck"],
-              "title": "truck"
-            }
-          ]
-        },
+        "kind": { "type": { "enum": ["ship", "truck"]}},
         "amount": {"type": "number"},
-        "size": {
-          "type": "string", 
-          "anyOf": [
-            {
-              "type": "string",
-              "enum": ["large"],
-              "title": "large"
-            },
-            {
-              "type": "string",
-              "enum": ["medium"],
-              "title": "medium"
-            },
-            {
-              "type": "string",
-              "enum": ["little"],
-              "title": "little"
-            }
-          ]
-        }
+        "size": { "type": { "enum": ["little", "medium", "large"]}}
       },
       "required": ["kind", "amount", "size"]
     },
