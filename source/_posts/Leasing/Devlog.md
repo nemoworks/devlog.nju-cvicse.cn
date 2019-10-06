@@ -153,12 +153,13 @@ class TemplateEditor extends React.Component {
 
 定制某种类型的advanced settings，然后在其与先前schema中创建的对应字段之间建立映射
 
-如下是对Object类型的各项操作的定制：
+如下是对leaseType类型的各项操作的定制：
 
 ```jsx
 import React from 'react';
 /* 引入schema编辑器 */
 import schemaEditor from '@/components/JsonSchema/index.js';
+import SchemaLease from '@/components/JsonSchema/components/SchemaLease.js';
 /* 引入自定义类型 */
 import { definitions } from './definitions.json';
 /* schema editor的配置属性 */
@@ -167,12 +168,13 @@ const SchemaEditor = schemaEditor(config);
 
 class TemplateEditor extends React.Component {
   //...
+  /* 自定义类型对应的高级组件 */
   advancedTemplate = data => {
     switch(data.type) {
       case "leaseType": return <SchemaLease data={data} />;
-      case "object": return <Input placeholder="object"></Input>;
-      default: return <Button>null</Button>;
+      default: return null;
     }
+  }
   
 	render() {
     return (
@@ -326,12 +328,30 @@ operations.add(lookupOperation);
 针对不同的待填项，可以设置其属性（包括填写类型，填写方式等）
 
 ```java
- /* 自定义type */
+/* @/components/JsonSchemaForm/index.js */
+import React from 'react'
+import LeaseField from '@/components/fields/LeaseField'
+import PartyField from '@/components/fields/PartyField'
+//...
+export default class CustomForm extends React.Component {
+  render() {
+    return (
+      <Form FieldTemplate={this.FieldTemplate} {...this.props} />
+    )
+  }
+
+  FieldTemplate = formProps => {
+    const { schema } = formProps
+    /* 自定义类型对应的组件 */
     switch(schema["type"]) {
       case "party": return <PartyField {...formProps} />;
       case "lease": return <LeaseField {...formProps} />;
       default: return DefaultTemplate(formProps);
     }
+  }
+  //...
+}
+
 ```
 
 - 后台接口（document管理接口，统一接口，后续所有接口均以合同的document为例）
