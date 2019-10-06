@@ -188,29 +188,33 @@ class TemplateEditor extends React.Component {
 
 - 后台接口（schema管理接口）
 
-创建schema的接口（后期会修改，template改回schema）
+创建schema，所有的schema放在特定的collection下（实现的原理是用一个type属性来管理不同的schema，如合同的schema、客户的schema等，分成若干个collection）：
 
-在实际运用时，若要创建一个合同项，先通过创建模板template封装schema，再选择对应的template创建所需要的合同，对应接口为：
+service层接口：
 
 ```java
-public Template createTemplate(TemplateRequest templateRequest){
-  logger.info("TemplateRequest saved");
-  logger.info(templateRequest.getContent().toJSONString());
-  Template template =new Template(templateRequest.getContent());
-  Template template1 = templateRepository.save(template);
-  System.out.println("================"+template1.getId());
-  return template1;
+public Schema createSchema(String type, JSONObject content){
+  logger.info("create schema.");
+  Schema schema = new Schema(type,content);
+  return this.schemaRepository.save(schema);
 }
 ```
 
-所有的schema放在特定的collection下（后端TODO）
+controller层接口：
+
+```java
+public Schema createSchema(@RequestBody JSONObject params,
+                               @RequestParam(value = "schemaType",defaultValue = "null") String schemaType){
+  logger.info("create new Schema "+schemaType);
+  return schemaService.createSchema(schemaType,params);
+}
+```
 
 版本维护实现基于JaVers，JaVers是一个轻量级，完全开源的Java库，用于追踪和记录数据中的更改。它可以配合repository使用，只需要添加一行注解`@JaversSpringDataAuditable`即可
 
 ```java
 @JaversSpringDataAuditable
-public interface TemplateRepository extends MongoRepository<Template, String> {
-	//...
+public interface SchemaRepository extends MongoRepository<Schema,String> {
 }
 ```
 
@@ -224,34 +228,54 @@ public interface TemplateRepository extends MongoRepository<Template, String> {
 
 若直接将schema删除，在之后就无法从对应生成的合同中查看该schema
 
-实现方式为在schema中添加一个是否删除字段delete，值为true时视为删除（TODO：添加对字段的操作）
+实现方式为在schema中添加一个是否删除字段status，值为deleted时视为删除
 
-接口名称及实现
+接口名称及实现：
+
+service层：
 
 ```java
-public void deleteTemplate(String id) throws TemplateNotFoundException{
-  if(!this.templateRepository.findById(id).isPresent())
-    throw new TemplateNotFoundException("TemplateRequest Not Found in templateRepository.");
-  logger.info("TemplateRequest deleted");
-  this.templateRepository.deleteById(id);
+public void deleteSchema(String id,String schemaType){
+  Schema schema1 = this.getSchemaById(id,schemaType);
+  schema1.setStatus("deleted");
+  mongoTemplate.save(schema1,schemaType);
+  schemaRepository.save(schema1);
+}
+```
+
+controller层：
+
+```java
+public List<Schema> deleteSchema(@PathVariable String id){
+  logger.info("delete schema "+id);
+  schemaService.deleteSchema(id);
+  return schemaService.getAllSchemas();
 }
 ```
 
 #### 更新schema
 
-接口名称及实现
+接口名称及实现:
+
+service层：
 
 ```java
-public Template updateTemplate(TemplateRequest templateRequest, String id) throws TemplateNotFoundException{
-  this.templateRepository.findById(id).ifPresent(template -> {
-    template.content = templateRequest.getContent();
-    this.templateRepository.save(template);
+public Schema updateSchema(String id,JSONObject jsonObject) {
+  logger.info("update schema by id.");
+  this.schemaRepository.findById(id).ifPresent(schema -> {
+    schema.setSchema(jsonObject);
+    this.schemaRepository.save(schema);
   });
-  if(this.templateRepository.findById(id).isPresent()){
-    return this.templateRepository.findById(id).get();
-  }else {
-    throw new TemplateNotFoundException("TemplateRequest Not Found in templateRepository.");
-  }
+  return this.schemaRepository.findById(id).get();
+}
+```
+
+controller层：
+
+```java
+public Schema updateSchema(@PathVariable String id,@RequestBody JSONObject params){
+  logger.info("update schema by Id "+ id);
+  return schemaService.updateSchema(id,params);
 }
 ```
 
@@ -262,19 +286,17 @@ public Template updateTemplate(TemplateRequest templateRequest, String id) throw
 根据模版号和提交编号查询对应schema：
 
 ```java
-public Template getTemplateWithJaversCommitId(String templateId, String commitId) throws TemplateNotFoundException{
-  Template template = this.getTemplate(templateId);
-  JqlQuery jqlQuery= QueryBuilder.byInstance(template).build();
+public Schema getSchemaWithJaversCommitId(String schemaId, String commitId) throws SchemaNotFoundException{
+  Schema schema = this.getSchema(schemaId);
+  JqlQuery jqlQuery= QueryBuilder.byInstance(schema).build();
   List<CdoSnapshot> snapshots = javers.findSnapshots(jqlQuery);
   for(CdoSnapshot snapshot:snapshots){
     if(snapshot.getCommitId().getMajorId()== Integer.parseInt(commitId))
-      return JSON.parseObject(javers.getJsonConverter().toJson(snapshot.getState()),Template.class);
+      return JSON.parseObject(javers.getJsonConverter().toJson(snapshot.getState()),Schema.class);
   }
   return null;
 }
 ```
-
-条件复合：（TODO）
 
 关联查询（利用属性关联性进行查找，例:从合同中查询该合同对应的CashFlow信息）:
 
@@ -325,7 +347,7 @@ operations.add(lookupOperation);
 
 - 高级组件（advanced component部分）
 
-针对不同的待填项，可以设置其属性（包括填写类型，填写方式等）
+针对不同的待填项，可以设置其属性（包括填写类型，填写方式等），这些组件均由用户自定义，构成最终需要生成的表单
 
 ```java
 /* @/components/JsonSchemaForm/index.js */
@@ -352,23 +374,34 @@ export default class CustomForm extends React.Component {
   //...
 }
 
+
 ```
 
-- 后台接口（document管理接口，统一接口，后续所有接口均以合同的document为例）
+- 后台接口（document管理接口）
 
-创建document，实现方式为从某个版本的schema创建，接口如下：
+创建document，实现方式为从某个版本、某个类型的schema创建，接口如下：
+
+service层：
 
 ```java
-public Contract createContractByTemplateId(ContractRequest contractRequest,String templateId,String commitId){
-  logger.info("create contract from templateId"+templateId);
-  Contract contract = new Contract(contractRequest.getContent());
-  contract.setBasicElements(contractRequest.getBasicElements());
-  contract.setTemplateId(templateId);
-  contract.setCommitId(commitId);
-  contract.setProcessInstanceId(contractRequest.getProcessInstanceId());
-  contractRepository.save(contract);
-  logger.info("new Contract's id is "+contractRepository.findByTemplateIdAndCommitId(templateId,commitId).getId());
-  return contractRepository.findByTemplateIdAndCommitId(templateId,commitId);
+public Document createNewDocument(String schemaId,String schemaType, JSONObject content){
+  logger.info("create new document by schemaId "+schemaId);
+  Document document = new Document();
+  document.setSchemaId(schemaId);
+  document.setData(content);
+  document.setSchemaType(schemaType);
+  document.setStatus("created");
+  documentRepository.save(document);
+  return mongoTemplate.insert(document,schemaType);
+}
+```
+
+controller层：
+
+```java
+public Document createDocument(@RequestBody JSONObject params, @RequestParam(value = "schemaId",defaultValue = "null") String schemaId, @RequestParam(value = "schemaType",defaultValue = "null") String schemaType){
+  logger.info("create new Document by SchemaId "+schemaId+" and schemaType "+schemaType);
+  return documentService.createNewDocument(schemaId,schemaType,params);
 }
 ```
 
@@ -376,23 +409,32 @@ public Contract createContractByTemplateId(ContractRequest contractRequest,Strin
 
 ```java
 @JaversSpringDataAuditable
-public interface ContractRepository extends MongoRepository<Contract, String> {
-	//...
+public interface DocumentRepository extends MongoRepository<Document,String> {
 }
 ```
 
 #### 删除document
 
-document中也会有一个是否删除字段delete，删除操作实质上为修改该字段为true，以备后续需要时进行查看
+document中也会有一个是否删除字段status，删除操作实质上为修改该字段位deleted，以备后续需要时进行查看，接口如下：
 
-接口如下（TODO：添加对字段的操作）：
+service层：
 
 ```java
-public void deleteContract(String id) throws ContractNotFoundException {
-  if (!this.contractRepository.findById(id).isPresent())
-    throw new ContractNotFoundException("ContractRequest Not Found in contractRepository.");
-  logger.info("contract deleted");
-  this.contractRepository.deleteById(id);
+public void deleteDocumentById(String id,String schemaType){
+  Document document1 = this.getDocumentById(id,schemaType);
+  document1.setStatus("deleted");
+  mongoTemplate.save(document1,schemaType);
+  documentRepository.save(document1);
+}
+```
+
+controller层：
+
+```java
+public List<Document> deleteDocument(@PathVariable String id, @RequestParam(value = "schemaType",defaultValue = "null") String schemaType){
+  logger.info("delete document "+id);
+  this.documentService.deleteDocumentById(id,schemaType);
+  return this.documentService.getAllDocuments(schemaType);
 }
 ```
 
@@ -422,13 +464,13 @@ public Contract updateContract(ContractRequest contractRequest, String id) throw
 查询某个版本：
 
 ```java
-public Contract getContractWithJaversCommitId(String contractId, String commitId) throws ContractNotFoundException {
-  Contract contract = this.getContract(contractId);
-  JqlQuery jqlQuery = QueryBuilder.byInstance(contract).build();
+public Document getDocumentWithJaversCommitId(String documentId, String commitId){
+  Document document = this.documentRepository.findById(documentId).get();
+  JqlQuery jqlQuery = QueryBuilder.byInstance(document).build();
   List<CdoSnapshot> snapshots = javers.findSnapshots(jqlQuery);
   for (CdoSnapshot snapshot : snapshots) {
     if (snapshot.getCommitId().getMajorId() == Integer.parseInt(commitId))
-      return JSON.parseObject(javers.getJsonConverter().toJson(snapshot.getState()), Contract.class);
+      return JSON.parseObject(javers.getJsonConverter().toJson(snapshot.getState()), Document.class);
   }
   return null;
 }
