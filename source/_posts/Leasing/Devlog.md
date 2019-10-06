@@ -347,7 +347,7 @@ operations.add(lookupOperation);
 
 - 高级组件（advanced component部分）
 
-针对不同的待填项，可以设置其属性（包括填写类型，填写方式等），这些组件均由用户自定义，构成最终需要生成的表单
+针对不同的待填项，可以设置其属性（包括填写类型，填写方式，对所填项的各种要求等），这些组件均由用户自定义，构成最终需要生成的表单
 
 ```java
 /* @/components/JsonSchemaForm/index.js */
