@@ -151,6 +151,12 @@ class TemplateEditor extends React.Component {
 
 - 高级组件（advanced setting部分）
 
+用户构建schema时，实际上是通过将各种组件拼合在一起的方式来创建的，如下图：
+
+{% qnimg schema_edit.png %}
+
+高级组件式的用户可以对其中的特殊类型进行扩展
+
 定制某种类型的advanced settings，然后在其与先前schema中创建的对应字段之间建立映射
 
 如下是对leaseType类型的各项操作的定制：
@@ -220,7 +226,9 @@ public interface SchemaRepository extends MongoRepository<Schema,String> {
 
 当数据库中有数据发生修改时，JaVers会自动追踪和记录数据库中发生的修改，存为特定数据类型Snapshot，在获取时可以通过版本号来访问到某次修改过后的数据内容
 
-在创建schema时，JaVers会对应生成初始版本记录
+在创建schema时，JaVers会对应生成初始版本记录，记录效果如下图：
+
+{% qnimg schema_javers.png %}
 
 #### 删除schema
 
@@ -337,11 +345,11 @@ operations.add(lookupOperation);
 
 - 前端界面（document editor部分）
 
-（TODO：加入操作时的截图）
+{% qnimg select_schema.png %}
 
 以合同为例，用户从合同schema生成document需要以下几步
 
-1. 通过选择template选择对应schema
+1. 通过选择模板选择对应schema
 2. 使用该schema生成form，供用户填写数据
 3. 获取用户填写的数据，生成对应document
 
@@ -412,6 +420,10 @@ public Document createDocument(@RequestBody JSONObject params, @RequestParam(val
 public interface DocumentRepository extends MongoRepository<Document,String> {
 }
 ```
+
+document的版本记录效果如下：
+
+{% qnimg document_javers.png %}
 
 #### 删除document
 
