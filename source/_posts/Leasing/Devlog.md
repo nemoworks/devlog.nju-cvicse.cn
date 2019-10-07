@@ -236,7 +236,7 @@ public interface SchemaRepository extends MongoRepository<Schema,String> {
 
 若直接将schema删除，在之后就无法从对应生成的合同中查看该schema
 
-实现方式为在schema中添加一个是否删除字段status，值为deleted时视为删除
+实现方式为在schema中添加一个字段status，该字段值为deleted时视为该schema已被删除
 
 接口名称及实现：
 
@@ -427,7 +427,7 @@ document的版本记录效果如下：
 
 #### 删除document
 
-document中也会有一个是否删除字段status，删除操作实质上为修改该字段位deleted，以备后续需要时进行查看，接口如下：
+document中也会有一个是否删除字段status，删除操作实质上为修改该字段为deleted，以备后续需要时进行查看，接口如下：
 
 service层：
 
@@ -452,22 +452,29 @@ public List<Document> deleteDocument(@PathVariable String id, @RequestParam(valu
 
 #### 更新document
 
-更新document时由于数据发生变化，JaVers会记录修改内容，实现版本维护
+更新document时由于数据发生变化，JaVers会记录修改内容，实现版本维护，接口如下：
 
-接口如下：
+service层：
 
 ```java
-public Contract updateContract(ContractRequest contractRequest, String id) throws ContractNotFoundException {
-  this.contractRepository.findById(id).ifPresent(contract -> {
-    contract.content = contractRequest.getContent();
-    contract.setBasicElements(contractRequest.getBasicElements());
-    contract.setProcessInstanceId(contractRequest.getProcessInstanceId());
-    this.contractRepository.save(contract);
+public Document updateDocumentById(String id,String schemaType,JSONObject content){
+  logger.info("update document by id.");
+  this.documentRepository.findById(id).ifPresent(document -> {
+    document.setData(content);
+    this.documentRepository.save(document);
   });
-  if (!this.contractRepository.findById(id).isPresent()) {
-    throw new ContractNotFoundException("ContractRequest Not Found in contractRepository.");
-  }
-  return this.contractRepository.findById(id).get();
+  Document document = this.getDocumentById(id,schemaType);
+  document.setData(content);
+  return mongoTemplate.save(document,schemaType);
+}
+```
+
+controller层：
+
+```java
+public Document updateDocument(@PathVariable String id,@RequestParam(value = "schemaType",defaultValue = "null")String schemaType,@RequestBody JSONObject params){
+  logger.info("update document by Id "+ id+" and schemaType "+schemaType);
+  return documentService.updateDocumentById(id,schemaType,params);
 }
 ```
 
@@ -485,12 +492,6 @@ public Document getDocumentWithJaversCommitId(String documentId, String commitId
       return JSON.parseObject(javers.getJsonConverter().toJson(snapshot.getState()), Document.class);
   }
   return null;
-}
-```
-
-条件复合：
-
-```java
 
 ```
 
