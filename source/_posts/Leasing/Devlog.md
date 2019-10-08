@@ -84,7 +84,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 也可对应租赁起止日期设计类型：date，通过设置format来使其符合日期定义
 
 ```json
-{
+{//本文件名为：definitions.json
   "definitions": {
     //...
     "link": {
@@ -112,25 +112,40 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 }
 ```
 
-对应schema可以引用需要用到的各项属性，对应可修改上述contract schema为：
+引用统一目录下另一个json文件中的定义，可以有如下写法：
+
+{% qnimg ref_definitions.png %}
+
+根据schema可以引用需要用到的各项属性，对应可修改上述contract schema为：
 
 ```json
-{
+{//本文件名为contract_1.json
   "title": "Contract_Schema_1",
   "description": "A Sample of Contract Schema",
   "type": "object",
   
   "properties": {
-    //...
+    "linkList": {
+      "type": "array",
+      "items": {"$ref": "definitions.json#/definitions/link"}
+    },
     "leases": {
       "type": "array",
-      "items": {"$ref": "#/definitions/leaseType"}
+      "items": {"$ref": "definitions.json#/definitions/leaseType"}
     },
-    "startDate": {"$ref": "#/definitions/date"},
-    "endDate": {"$ref": "#/definitions/date"}
+    "startDate": {"$ref": "definitions.json#/definitions/date"},
+    "endDate": {"$ref": "definitions.json#/definitions/date"}
   }
 }
 ```
+
+参考文档：
+
+[json_schema_complex_structure](https://json-schema.org/understanding-json-schema/structuring.html)
+
+示例json代码：
+
+[code_example](https://github.com/NovelistChan/LeasingExamples)
 
 - 前端界面（schema editor部分）
 
