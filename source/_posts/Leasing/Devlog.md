@@ -36,7 +36,12 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
   "type": "object",
   
   "properties": {
-    "customer_id": {"type": "string"},//客户编号，是schema中对客户数据的引用方式，表示该客户签订了本份合同
+    "linkList": {
+      "type": "array",
+      "items": {
+        "type": "link"
+      }
+    },//linkList存储一系列编号，包括客户编号、资金流编号等，作外键使用
     "leases": {
       "type": "array",
       "items": {
@@ -82,6 +87,14 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 {
   "definitions": {
     //...
+    "link": {
+      "type": "object",
+      "properties": {
+        "key": { "type": { "enum": ["customer", "cashflow", "lease"]}},//对应collection名字，如客户、cashflow
+        "val": { "type": "string"}//对应id，作为外键
+      },
+      "required": ["key", "val"]
+    },
     "leaseType": {
       "type": "object",
       "properties": {
@@ -304,18 +317,6 @@ public Schema getSchemaWithJaversCommitId(String schemaId, String commitId) thro
   }
   return null;
 }
-```
-
-关联查询（利用属性关联性进行查找，例:从合同中查询该合同对应的CashFlow信息）:
-
-```java
-List<AggregationOperation> operations = Lists.newArrayList();
-operations.add(Aggregation.match(Criteria.where("_id").is(id)));  //根据id查询到具体的contract
-LookupOperation lookupOperation = LookupOperation.newLookup().from("CashFlow")
-  .localField("content.cashFlowId")
-  .foreignField("name")
-  .as("content.cashFlowId");  //用lookup，根据Contract表中的cashFlowId映射到CashFlow这张表中的name，从而获取整个cashFlow的内容
-operations.add(lookupOperation);
 ```
 
 
@@ -700,6 +701,8 @@ function replacePlaceholder(editorState, blockKey, data) {
 ```
 
 #### chart
+
+（报表）从外部Excel导入数据，分析后生成charts
 
 #### spread sheet
 
