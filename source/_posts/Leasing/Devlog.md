@@ -88,15 +88,12 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
   "definitions": {
     //...
     "link": {
-      "type": "object",
-      "properties": {
-        "key": { "type": { "enum": ["customer", "cashflow", "lease"]}},//对应collection名字，如客户、cashflow
-        "val": { "type": "string"}//对应id，作为外键
-      },
-      "required": ["key", "val"]
+      "type": "link",
+      "enum": ["customer", "cashflow", "lease"]
     },
     "leaseType": {
       "type": "object",
+      "customized": "leaseType",
       "properties": {
         "kind": { "type": { "enum": ["ship", "truck"]}},
         "amount": {"type": "number"},
@@ -106,6 +103,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
     },
     "date": {
       "type": "string",
+      "customized": "date",
       "format": "date"
     }
   }
@@ -158,7 +156,11 @@ import schemaEditor from '@/components/JsonSchema/index.js';
 /* 引入自定义类型 */
 import { definitions } from './definitions.json';
 /* schema editor的配置属性 */
-const config = { defaultSchema: definitions };
+const config = {
+  defaultSchema: {
+    ...definitions
+  }
+};
 const SchemaEditor = schemaEditor(config);
 
 class TemplateEditor extends React.Component {
@@ -187,38 +189,118 @@ class TemplateEditor extends React.Component {
 
 定制某种类型的advanced settings，然后在其与先前schema中创建的对应字段之间建立映射
 
-如下是对leaseType类型的各项操作的定制：
-
 ```jsx
-import React from 'react';
-/* 引入schema编辑器 */
-import schemaEditor from '@/components/JsonSchema/index.js';
-import SchemaLease from '@/components/JsonSchema/components/SchemaLease.js';
-/* 引入自定义类型 */
-import { definitions } from './definitions.json';
-/* schema editor的配置属性 */
-const config = { defaultSchema: definitions };
-const SchemaEditor = schemaEditor(config);
-
-class TemplateEditor extends React.Component {
-  //...
-  /* 自定义类型对应的高级组件 */
-  advancedTemplate = data => {
-    switch(data.type) {
-      case "leaseType": return <SchemaLease data={data} />;
-      default: return null;
-    }
-  }
-  
-	render() {
-    return (
-      //...
-      <SchemaEditor advancedTemplate={this.advancedTemplate}/>
-			//...
-    )
-  }
-}
+/* @/components/JsonSchema/components/SchemaComponents/SchemaOther.js */
+//...
+/* 所有自定义类型的advanced settings定制都通过advancedTemplate添加到JsonSchemaEditor中 */
+const advancedTemplate = data => (new Map([
+  /* 自定义类型名称以及对应的advanced settings中的组件 */
+  ['link', (<CustomizedSchemaLink data={data} />)],
+  ['leaseType', (<CustomizedSchemaLease data={data} />)],
+]).get(data.customized||data.type))
+//...
 ```
+
+如下是对link类型的高级设置的定制：
+
+```javascript
+/* @/components/JsonSchema/components/SchemaComponents/SchemaLink.js */
+import React from 'react'
+import { Cascader, Row, Col, Input, Button } from 'antd'
+import PropTypes from 'prop-types';
+import LocalProvider from '../LocalProvider/index.js';
+import { connect } from 'dva'
+
+const mapStateToProps = state => ({
+  link: state['jsonSchema-link']
+})
+
+class CustomizedSchemaLink extends React.Component {
+
+  render() {
+    const { data, dispatch } = this.props;
+    console.log(this.state.options)
+    return (
+      <div>
+        <div className="default-setting">{LocalProvider('base_setting')}</div>
+        <Row className="other-row" type="flex" align="middle">
+          <Col span={4} className="other-label">
+            {LocalProvider('link')}：
+          </Col>
+          <Col span={20}>
+            /* link类型advanced settings组件的核心是一个级联选择框 */
+            <Cascader placeholder="please select customer schema and document" style={{ width: '100%' }}
+              options={this.state.options}//动态选项
+              onChange={selectedOptions => {
+                /* 将选中的key和val写回当前的schema中 */
+                console.log(selectedOptions)
+                this.changeOtherValue(selectedOptions[0], "key", data)
+                this.changeOtherValue(selectedOptions[2], "val", data)
+              }} loadData={this.loadData} changeOnSelect >
+            </Cascader>
+          </Col>
+        </Row>
+      </div>
+    );
+  }
+
+  state = {
+    /* 约定从enum中获取第一层可选项，即collection */
+    options: this.props.data.enum.map(item => ({ value: item, label: item, isLeaf: false }))
+  }
+
+	/* 回写schema方法 */
+  changeOtherValue = (value, name, data) => {
+    data[name] = value;
+    this.context.changeCustomValue(data);
+  };
+
+	/* 级联选择动态加载数据 */
+  loadData = selectedOptions => {
+    /* 渲染第二层可选项，向后台请求符合要求的所有schema */
+    if (selectedOptions.length === 1) {
+      const targetOption = selectedOptions[selectedOptions.length - 1];
+      targetOption.loading = true;
+      /* 向后台请求collection为key的schema */
+      this.props.dispatch({
+        type: 'jsonSchema-link/getSchemaList',
+        key: targetOption.value,
+        callback: schemaList => {
+          targetOption.loading = false;
+          targetOption.children = schemaList.map(item => ({ value: item.id, label: item.name, isLeaf: false }))
+          this.setState({
+            options: [...this.state.options],
+          });
+        }
+      })
+    }
+    /* 渲染第三层可选项，向后台请求符合要求的所有document */
+    if (selectedOptions.length === 2) {
+      const targetOption = selectedOptions[selectedOptions.length - 1];
+      targetOption.loading = true;
+      /* 根据选中的schemaId向后台请求相关的document */
+      this.props.dispatch({
+        type: 'jsonSchema-link/getDocumentListBySchemaId',
+        id: targetOption.value,
+        callback: documentList => {
+          targetOption.loading = false;
+          targetOption.children = documentList.map(item => ({ value: item.id, label: item.name }))
+          this.setState({
+            options: [...this.state.options],
+          });
+        }
+      })
+    }
+  };
+}
+CustomizedSchemaLink.contextTypes = {
+  changeCustomValue: PropTypes.func,
+};
+
+export default connect(mapStateToProps)(CustomizedSchemaLink)
+```
+
+由于回写schema的方法中用到了context，所以请务必定制组件在SchemaComponents目录下
 
 - 后台接口（schema管理接口）
 
@@ -375,9 +457,7 @@ public Schema getSchemaWithJaversCommitId(String schemaId, String commitId) thro
 
 ```java
 /* @/components/JsonSchemaForm/index.js */
-import React from 'react'
-import LeaseField from '@/components/fields/LeaseField'
-import PartyField from '@/components/fields/PartyField'
+import LinkField from './components/fields/LinkField'
 //...
 export default class CustomForm extends React.Component {
   render() {
@@ -385,20 +465,60 @@ export default class CustomForm extends React.Component {
       <Form FieldTemplate={this.FieldTemplate} {...this.props} />
     )
   }
-
-  FieldTemplate = formProps => {
-    const { schema } = formProps
-    /* 自定义类型对应的组件 */
-    switch(schema["type"]) {
-      case "party": return <PartyField {...formProps} />;
-      case "lease": return <LeaseField {...formProps} />;
-      default: return DefaultTemplate(formProps);
-    }
-  }
+  
+  /* 所有自定义类型在Form中的组件定制都通过FieldTemplate添加到FormEditor中 */
+  FieldTemplate = formProps => (new Map([
+    /* 自定义类型名称及其对应组件 */
+    ['link', (<LinkField {...formProps} />)]
+  ]).get(formProps.schema.customized || formProps.schema.type)) || DefaultTemplate(formProps)
   //...
 }
+```
 
+以渲染link类型对应的组件LinkField为例：
 
+```javascript
+/* @/components/JsonSchemaForm/components/fields/LinkField.js */
+import React from 'react'
+import { connect } from 'dva'
+import { Button, Checkbox, Select } from 'antd'
+
+const mapStateToProps = state => ({
+    link: state['jsonSchemaForm-link']
+})
+
+class LinkField extends React.Component {
+
+    render() {
+        const { label, schema, link } = this.props
+        const selectList = link.content.map(item => <Select.Option value={item}>{item}</Select.Option>)
+        debugger
+        return (
+            <div>
+                <label>{label}</label>
+          			/* LinkField组件的核心是一个下拉选择框，可选项根据向后台请求得到的document渲染 */
+                <Select defaultValue={this.props.formData} style={{ width: 120 }} onChange={value => this.props.onChange(value)}>
+                    {selectList}
+                </Select>
+            </div>
+        )
+    }
+
+    state = {
+        selected: this.props.formData,
+    }
+
+    componentDidMount() {
+     	 	/* 根据schema中的key和val，向后台请求对应的document */
+        this.props.dispatch({
+            type: 'jsonSchemaForm-link/getDocument',
+            key: this.props.schema.key,
+            val: this.props.schema.val,
+        })
+    }
+}
+
+export default connect(mapStateToProps)(LinkField)
 ```
 
 - 后台接口（document管理接口）
