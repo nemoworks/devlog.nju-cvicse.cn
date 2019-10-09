@@ -112,7 +112,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 }
 ```
 
-引用统一目录下另一个json文件中的定义，可以有如下写法：
+引用同一目录下另一个json文件中的定义，可以有如下写法：
 
 {% qnimg ref_definitions.png %}
 
