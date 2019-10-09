@@ -147,7 +147,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 - 前端界面（schema editor部分）
 
-用户可以通过schema editor来构建合同的schema，这个schema会经由template封装成为用户建立表单项时的模板
+用户可以通过schema editor来构建合同的schema，这个schema在用户建立表单form时可供选择
 
 ``` jsx
 import React from 'react';
@@ -175,15 +175,13 @@ class TemplateEditor extends React.Component {
 }
 ```
 
-以先前定义的contract为schema模板可生成对应的表单form，如下例：
+使用schema editor构建上述contract schema，如下例：
 
-{% qnimg schema_form.png %}
+{% qnimg schema_editor.png %}
 
 - 高级组件（advanced setting部分）
 
-用户构建schema时，实际上是通过将各种组件拼合在一起的方式来创建的，如下图：
-
-{% qnimg schema_edit.png %}
+用户构建schema时，实际上是通过将各种组件拼合在一起的方式来创建的
 
 高级组件式的用户可以对其中的特殊类型进行扩展
 
@@ -302,16 +300,42 @@ export default connect(mapStateToProps)(CustomizedSchemaLink)
 
 由于回写schema的方法中用到了context，所以请务必定制组件在SchemaComponents目录下
 
+下图以link为例展示了advanced settings的效果：
+
+{% qnimg link_advancedsettings_select.png %}
+
+选择好对应的document后的效果：
+
+{% qnimg link_advancedsettings_selected.png %}
+
 - 后台接口（schema管理接口）
 
-创建schema，所有的schema放在特定的collection下（实现的原理是用一个type属性来管理不同的schema，如合同的schema、客户的schema等，分成若干个collection）：
+首先对schema类进行说明：
+
+```java
+@Document(collection = "Schema")
+public class Schema {
+  @Id
+  private String id;//作为数据库主键
+  private JSONObject schemaContent;//包含了schema中的所有内容
+  private Status status;//指示位，表示当前schema的状态
+	//...
+}
+
+public enum  Status {
+  Created, Deleted;//两个值分别对应创建和删除
+}
+```
+
+创建schema，并设定status为Created（即创建）：
 
 service层接口：
 
 ```java
-public Schema createSchema(String type, JSONObject content){
+public Schema createSchema(JSONObject content){
   logger.info("create schema.");
-  Schema schema = new Schema(type,content);
+  Schema schema = new Schema(content);
+  schema.setStatus(Status.Created);
   return this.schemaRepository.save(schema);
 }
 ```
@@ -319,18 +343,19 @@ public Schema createSchema(String type, JSONObject content){
 controller层接口：
 
 ```java
-public Schema createSchema(@RequestBody JSONObject params,
-                               @RequestParam(value = "schemaType",defaultValue = "null") String schemaType){
-  logger.info("create new Schema "+schemaType);
-  return schemaService.createSchema(schemaType,params);
+public Schema createSchema(@RequestBody JSONObject params){
+  logger.info("create new Schema. ");
+  return schemaService.createSchema(params);
 }
 ```
 
 版本维护实现基于JaVers，JaVers是一个轻量级，完全开源的Java库，用于追踪和记录数据中的更改。它可以配合repository使用，只需要添加一行注解`@JaversSpringDataAuditable`即可
 
 ```java
+@Repository
 @JaversSpringDataAuditable
 public interface SchemaRepository extends MongoRepository<Schema,String> {
+  List<Schema> findAllByStatus(Status status);
 }
 ```
 
@@ -342,22 +367,22 @@ public interface SchemaRepository extends MongoRepository<Schema,String> {
 
 #### 删除schema
 
-删除作为一种标记，而不是真的从数据库中将schema删除
+删除作为一种标记操作，而不是真的从数据库中将schema删除
 
-若直接将schema删除，在之后就无法从对应生成的合同中查看该schema
+若直接将schema删除，在之后就无法实现从对应生成的合同中查看该schema等相关操作
 
-实现方式为在schema中添加一个字段status，该字段值为deleted时视为该schema已被删除
+实现方式为修改schema的status属性为Deleted
 
 接口名称及实现：
 
 service层：
 
 ```java
-public void deleteSchema(String id,String schemaType){
-  Schema schema1 = this.getSchemaById(id,schemaType);
-  schema1.setStatus("deleted");
-  mongoTemplate.save(schema1,schemaType);
-  schemaRepository.save(schema1);
+public void deleteSchema(String id){
+  this.schemaRepository.findById(id).ifPresent(schema -> {
+    schema.setStatus(Status.Deleted);
+    this.schemaRepository.save(schema);
+  });
 }
 ```
 
@@ -401,7 +426,52 @@ public Schema updateSchema(@PathVariable String id,@RequestBody JSONObject param
 
 #### 查询schema（后台接口）
 
-根据模版号和提交编号查询对应schema：
+获取所有未被删除的schema：
+
+service层：
+
+```java
+public List<Schema> getAllSchemas(){
+  logger.info("get all schemas");
+  return schemaRepository.findAllByStatus(Status.Created);
+}
+```
+
+controller层：
+
+```java
+public List<Schema> getSchemas(){
+  logger.info("get all schemas");
+  return schemaService.getAllSchemas();
+}
+```
+
+根据id获取对应schema：
+
+service层：
+
+```java
+public Schema getSchemaById(String id){
+  logger.info("get schema by id");
+  Schema schema = schemaRepository.findById(id).get();
+  if(schema.getStatus().equals(Status.Created)){
+    return schemaRepository.findById(id).get();
+  }else return null;
+}
+```
+
+controller层：
+
+```java
+public Schema getSchemaById(@PathVariable String id){
+  logger.info("get schema by id "+id);
+  return schemaService.getSchemaById(id);
+}
+```
+
+根据schemaId和javers记录的提交编号检索对应schema的历史版本：
+
+service层：
 
 ```java
 public Schema getSchemaWithJaversCommitId(String schemaId, String commitId) throws SchemaNotFoundException{
@@ -413,6 +483,30 @@ public Schema getSchemaWithJaversCommitId(String schemaId, String commitId) thro
       return JSON.parseObject(javers.getJsonConverter().toJson(snapshot.getState()),Schema.class);
   }
   return null;
+}
+```
+
+controller层：
+
+```java
+public JSONArray getSchemaWithCommitId(@PathVariable String id, @RequestParam(value = "commitId", defaultValue = "null") String commitId) {
+  if (commitId.equals("null")) {
+    try {
+      logger.info("Get Schema commits with schemaId "+ id);
+      return this.schemaService.trackSchemaChangesWithJavers(id);
+    } catch (Exception e) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Schema Not Found.", e);
+    }
+  } else {
+    try {
+      logger.info("Cet Schema commit with schemaId and commitId" + commitId);
+      JSONArray jsonArray = new JSONArray();
+      jsonArray.add(this.schemaService.getSchemaWithJaversCommitId(id, commitId));
+      return jsonArray;
+    } catch (Exception e) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Schema Not Found.", e);
+    }
+  }
 }
 ```
 
@@ -428,6 +522,17 @@ public Schema getSchemaWithJaversCommitId(String schemaId, String commitId) thro
 
 ```json
 {
+  "linkList": [
+    {
+      "link": "customer"
+    },
+    {
+    	"link": "cashflow"
+    },
+    {
+      "link": "lease"
+    }
+  ],
   "leases": [
     {
       "kind": "ship",
@@ -450,6 +555,10 @@ public Schema getSchemaWithJaversCommitId(String schemaId, String commitId) thro
 1. 通过选择模板选择对应schema
 2. 使用该schema生成form，供用户填写数据
 3. 获取用户填写的数据，生成对应document
+
+一个创建好的form表单如下：
+
+{% qnimg form_editor.png %}
 
 - 高级组件（advanced component部分）
 
@@ -523,35 +632,50 @@ export default connect(mapStateToProps)(LinkField)
 
 - 后台接口（document管理接口）
 
+首先对document类进行说明：
+
+```java
+@org.springframework.data.mongodb.core.mapping.Document(collection = "Document")
+public class Document {
+  @Id
+  private String id;//数据库主键
+  private String schemaId;//对应的schema的编号
+  private String collectionName;//属于什么类型的文档，如客户、合同等
+  private JSONObject data;//用户填写的json数据
+  private Status status;//同schema中的status，表示是否删除
+}
+```
+
 创建document，实现方式为从某个版本、某个类型的schema创建，接口如下：
 
 service层：
 
 ```java
-public Document createNewDocument(String schemaId,String schemaType, JSONObject content){
+public Document createNewDocument(String schemaId,JSONObject content{
   logger.info("create new document by schemaId "+schemaId);
   Document document = new Document();
   document.setSchemaId(schemaId);
   document.setData(content);
-  document.setSchemaType(schemaType);
-  document.setStatus("created");
+  document.setStatus(Status.Created);
+  document.setCollectionName(content.getString("title"));
   documentRepository.save(document);
-  return mongoTemplate.insert(document,schemaType);
+  return mongoTemplate.insert(document,document.getCollectionName());
 }
 ```
 
 controller层：
 
 ```java
-public Document createDocument(@RequestBody JSONObject params, @RequestParam(value = "schemaId",defaultValue = "null") String schemaId, @RequestParam(value = "schemaType",defaultValue = "null") String schemaType){
-  logger.info("create new Document by SchemaId "+schemaId+" and schemaType "+schemaType);
-  return documentService.createNewDocument(schemaId,schemaType,params);
+public Document createDocument(@RequestBody JSONObject params, @RequestParam(value = "schemaId",defaultValue = "null") String schemaId, @RequestParam(value = "collectionName",defaultValue = "null") String collectionName){
+  logger.info("create new Document by SchemaId "+schemaId+" and collectionName "+collectionName);
+  return documentService.createNewDocument(schemaId,params);
 }
 ```
 
 版本维护同样通过JaVers实现，使用JaVers定义repository后，JaVers会自动监听数据修改：
 
 ```java
+@Repository
 @JaversSpringDataAuditable
 public interface DocumentRepository extends MongoRepository<Document,String> {
 }
@@ -563,15 +687,15 @@ document的版本记录效果如下：
 
 #### 删除document
 
-document中也会有一个是否删除字段status，删除操作实质上为修改该字段为deleted，以备后续需要时进行查看，接口如下：
+document中删除操作与schema相同，即修改status属性为Deleted，以备后续需要时进行查看，接口如下：
 
 service层：
 
 ```java
-public void deleteDocumentById(String id,String schemaType){
-  Document document1 = this.getDocumentById(id,schemaType);
-  document1.setStatus("deleted");
-  mongoTemplate.save(document1,schemaType);
+public void deleteDocument(String id,String collectionName){
+  Document document1 = this.getDocumentByIdAndCollectionName(id,collectionName);
+  document1.setStatus(Status.Deleted);
+  mongoTemplate.save(document1,collectionName);
   documentRepository.save(document1);
 }
 ```
@@ -579,10 +703,10 @@ public void deleteDocumentById(String id,String schemaType){
 controller层：
 
 ```java
-public List<Document> deleteDocument(@PathVariable String id, @RequestParam(value = "schemaType",defaultValue = "null") String schemaType){
+public List<Document> deleteDocument(@PathVariable String id, @RequestParam(value = "collectionName",defaultValue = "null") String collectionName){
   logger.info("delete document "+id);
-  this.documentService.deleteDocumentById(id,schemaType);
-  return this.documentService.getAllDocuments(schemaType);
+  this.documentService.deleteDocument(id,collectionName);
+  return this.documentService.getAllDocumentsByCollectionName(collectionName);
 }
 ```
 
@@ -593,30 +717,74 @@ public List<Document> deleteDocument(@PathVariable String id, @RequestParam(valu
 service层：
 
 ```java
-public Document updateDocumentById(String id,String schemaType,JSONObject content){
+public Document updateDocument(String id,String collectionName,JSONObject content){
   logger.info("update document by id.");
   this.documentRepository.findById(id).ifPresent(document -> {
     document.setData(content);
     this.documentRepository.save(document);
   });
-  Document document = this.getDocumentById(id,schemaType);
+  Document document = this.getDocumentByIdAndCollectionName(id,collectionName);
   document.setData(content);
-  return mongoTemplate.save(document,schemaType);
+  return mongoTemplate.save(document,collectionName);
 }
 ```
 
 controller层：
 
 ```java
-public Document updateDocument(@PathVariable String id,@RequestParam(value = "schemaType",defaultValue = "null")String schemaType,@RequestBody JSONObject params){
-  logger.info("update document by Id "+ id+" and schemaType "+schemaType);
-  return documentService.updateDocumentById(id,schemaType,params);
+public Document updateDocument(@PathVariable String id,@RequestParam(value = "collectionName",defaultValue = "null")String collectionName,@RequestBody JSONObject params){
+  logger.info("update document by Id "+ id+" and collectionName "+collectionName);
+  return documentService.updateDocument(id,collectionName,params);
 }
 ```
 
 #### 查询document（后台接口）
 
-查询某个版本：
+获取某个类型的所有未被删除的document：
+
+service层：
+
+```java
+public List<Document> getAllDocumentsByCollectionName(String collectionName){
+  logger.info("get all documents by collectionName.");
+  Query query = new Query();
+  query.addCriteria(Criteria.where("status").is(Status.Created));
+  return mongoTemplate.find(query,Document.class,collectionName);
+}
+```
+
+controller层：
+
+```java
+public List<Document> getDocuments(@RequestParam(value = "collectionName",defaultValue = "null")String collectionName){
+  logger.info("get all documents by collectionName "+collectionName);
+  return this.documentService.getAllDocumentsByCollectionName(collectionName);
+}
+```
+
+在某个类型的document中根据id检索：
+
+service层：
+
+```java
+public Document getDocumentByIdAndCollectionName(String id,String collectionName){
+  logger.info("get document by id and collectionName"+id);
+  return this.mongoTemplate.findOne(new Query(Criteria.where("_id").is(id)),Document.class,collectionName);
+}
+```
+
+controller层：
+
+```java
+public Document getDocumentByIdAndCollectionName(@PathVariable String id,@RequestParam(value = "collectionName",defaultValue = "null")String collectionName){
+  logger.info("get document by id "+id+" and collectionName "+collectionName);
+  return documentService.getDocumentByIdAndCollectionName(id,collectionName);
+}
+```
+
+根据documentId和javers记录的提交编号检索对应document的历史版本：
+
+service层：
 
 ```java
 public Document getDocumentWithJaversCommitId(String documentId, String commitId){
@@ -628,13 +796,56 @@ public Document getDocumentWithJaversCommitId(String documentId, String commitId
       return JSON.parseObject(javers.getJsonConverter().toJson(snapshot.getState()), Document.class);
   }
   return null;
-
+}
 ```
 
-关联查询：
+controller层：
 
+```java
+public JSONArray getDocumentWithCommitId(@PathVariable String id,@RequestParam(value = "commitId", defaultValue = "null") String commitId) {
+  if (commitId.equals("null")) {
+    try {
+      logger.info("Get Document commits with documentId "+ id);
+      return this.documentService.trackDocumentChangesWithJavers(id);
+    } catch (Exception e) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document Not Found.", e);
+    }
+  } else {
+    try {
+      logger.info("Cet Document commit with commitId" + commitId);
+      JSONArray jsonArray = new JSONArray();
+      jsonArray.add(this.documentService.getDocumentWithJaversCommitId(id, commitId));
+      return jsonArray;
+    } catch (Exception e) {
+      throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Document Not Found.", e);
+    }
+  }
+}
 ```
 
+关联（聚合）查询，根据document中记录的对应link访问到其他document：
+
+```java
+public Document getCompleteDocument(String id, String collectionName, JSONArray filterFactors){
+  logger.info("get document by id "+id);
+  List<AggregationOperation> operations = Lists.newArrayList();
+  operations.add(Aggregation.match(Criteria.where("_id").is(id)));
+  for(int i=0;i<filterFactors.size();i++){
+    JSONObject filterFactor = filterFactors.getJSONObject(i);
+    LookupOperation lookupOperation = LookupOperation.newLookup()
+      .from(filterFactor.getString("collectionName"))
+      .localField(filterFactor.getString("localParam"))
+      .foreignField(filterFactor.getString("foreignParam"))
+      .as(filterFactor.getString("localParam"));
+    operations.add(lookupOperation);
+  }
+  Aggregation aggregation = Aggregation.newAggregation(operations);
+  AggregationResults<Document> contractAggregationResults= mongoTemplate.aggregate(aggregation,collectionName, Document.class);
+  List<Document> documents = contractAggregationResults.getMappedResults();
+  if(documents.size()==1)
+    return documents.get(0);
+  else return null;
+}
 ```
 
 
