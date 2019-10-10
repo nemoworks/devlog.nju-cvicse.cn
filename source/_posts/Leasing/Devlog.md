@@ -89,7 +89,6 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
     //...
     "link": {
       "type": "link",
-      "enum": ["customer", "cashflow", "lease"]
     },
     "leaseType": {
       "type": "object",
@@ -243,8 +242,7 @@ class CustomizedSchemaLink extends React.Component {
   }
 
   state = {
-    /* 约定从enum中获取第一层可选项，即collection */
-    options: this.props.data.enum.map(item => ({ value: item, label: item, isLeaf: false }))
+    options: []
   }
 
 	/* 回写schema方法 */
@@ -252,6 +250,17 @@ class CustomizedSchemaLink extends React.Component {
     data[name] = value;
     this.context.changeCustomValue(data);
   };
+
+	componentDidMount() {
+    /* 渲染第一层可选项 */
+    this.props.dispatch({
+      type: 'jsonSchema-link/getCollectionList',
+      callback: collectionList => {
+        const options = collectionList.map(item => ({ value: item, label: item, isLeaf: false }))
+        this.setState({ options })
+      }
+    })
+  }
 
 	/* 级联选择动态加载数据 */
   loadData = selectedOptions => {
