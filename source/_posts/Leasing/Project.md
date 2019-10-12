@@ -61,6 +61,10 @@ date: 2019-09-24 15:34:04
 - 租金计算表后端支持分段计算；document聚合查询初步重构（春葱）
 - 完成schema editor和form editor中自定义link类型的高级组件定制（ToMo）
 
-#### 2019-10-10
+#### 2019-10-12
+
+- 实现租金计算表，完成流程引擎动态跳转功能（春葱）
+- schema实现file基本类型（预备役木匠）
+- schema editor解决context调用问题，实现定制化完全由外部传入；用data sheet初步实现图标功能（ToMo）
 
 待补充..
