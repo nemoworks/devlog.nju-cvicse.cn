@@ -114,49 +114,66 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 - 前端界面（schema editor部分）
 
-Schema editor直接使用我们打包好的组件，包含两个参数以供传入
+Schema editor直接使用我们打包好的组件，包含以下三个可选参数
 
-其中data是当前schema的内容，extensions是各个definition的定义
+- data：当前schema的源文本
+- onChange：editor更改事件处理方法 注：暂时不支持onChange方法中调用setState** 
+- extensions：各个definition的定义
 
 以上述合同schema为例，definitions的定义有如下几步：
 
 1. 选取一个类型（下例中为link）写成js文件
 
 ```jsx
+// '@/components/Link/schema.js'
 const linkDef = {
     "link": {
         "customized": "link",
-        "type": "link",
-        "component": CustomizedSchemaLink
+        "type": "link"
     }
 }
 ```
 
-2. 为该类型添加component属性，即advacned settings，这部分在下面一小节作出说明
+2. 为该类型添加定制组件，即advacned settings，这部分在下面一小节作出说明
 
 ```jsx
-import CustomizedSchemaLink from '../SchemaComponents/SchemaLink'
-const LinkDef = {
-    "link": {
-        "customized": "link",
-        "type": "link",
-        "component": CustomizedSchemaLink,
-    }
+// '@/components/Link/template.js'
+class CustomizedSchemaLink extends React.Component {
+		// ...
 }
 ```
 
-3. 对所有类型都执行上述操作，最后合并所有类型成为一个综合的definitions
+3. 为该类型添加定制渲染方式，即Form表单的显示样式，这部分在documents中给予说明
 
 ```jsx
-import dateDef from '@/components/SchemaDate/Definition/date'
-import leaseTypeDef from '@/components/SchemaLeaseType/Definition/leaseType'
-import linkDef from '@/components/SchemaLink/Definition/link'
+// '@/components/Link/field.js'
+export default function LinkField(props) {
+ 		// ... 
+}
+```
 
-const { date } = dateDef
-const { leaseType } = leaseTypeDef
-const { link } = linkDef
+4. 将上述三个文件中的定义合并为一个extension条目
 
-const definitions = {
+```jsx
+// '@/components/Link/index.js'
+import field from './field'
+import template from './template'
+import schema from './schema'
+
+export default {
+    field,
+    template,
+    schema
+}
+```
+
+5. 对所有类型都执行上述操作，最后合并所有类型成为一个综合的definitions
+
+```jsx
+import date from '@/components/Date/index'
+import leaseType from '@/components/LeaseType/index'
+import link from '@/components/Link/index'
+const extensions = {
     date,
     leaseType,
     link
@@ -176,7 +193,8 @@ class App extends React.Component {
   render() {
     return (
       //...
-      <SchemaEditor data={this.state.schema}
+      <SchemaEditor data = {this.state.schema}
+        onChange = {schema => console.log(schema)}
         extensions = {definitions}
         />
     )
@@ -336,8 +354,6 @@ CustomizedSchemaLink.contextTypes = {
 
 export default connect(mapStateToProps)(CustomizedSchemaLink)
 ```
-
-由于回写schema的方法中用到了context，所以请务必定制组件在SchemaComponents目录下
 
 下图以link为例展示了advanced settings的效果：
 
@@ -601,25 +617,26 @@ public JSONArray getSchemaWithCommitId(@PathVariable String id, @RequestParam(va
 
 - 高级组件（advanced component部分）
 
-针对不同的待填项，可以设置其属性（包括填写类型，填写方式，对所填项的各种要求等），这些组件均由用户自定义，构成最终需要生成的表单
+针对不同的待填项，可以设置其属性（包括填写类型，填写方式，对所填项的各种要求等）对应这些项在表单中的渲染方式，这些组件均由用户自定义，构成最终需要生成的表单
 
-```java
-/* @/components/JsonSchemaForm/index.js */
-import LinkField from './components/fields/LinkField'
-//...
-export default class CustomForm extends React.Component {
-  render() {
-    return (
-      <Form FieldTemplate={this.FieldTemplate} {...this.props} />
-    )
-  }
-  
-  /* 所有自定义类型在Form中的组件定制都通过FieldTemplate添加到FormEditor中 */
-  FieldTemplate = formProps => (new Map([
-    /* 自定义类型名称及其对应组件 */
-    ['link', (<LinkField {...formProps} />)]
-  ]).get(formProps.schema.customized || formProps.schema.type)) || DefaultTemplate(formProps)
-  //...
+```jsx
+import date from '@/components/Date/index'
+import leaseType from '@/components/LeaseType/index'
+import link from '@/components/Link/index'
+
+const extensionsForm = {
+    date: date.field,
+    leaseType: leaseType.field,
+    link: link.field
+}
+
+render() {
+  return (
+    // ...
+    <Form schema={JSON.parse(this.state.schema)}
+      extensions={extensionsForm}
+      />
+  )
 }
 ```
 
