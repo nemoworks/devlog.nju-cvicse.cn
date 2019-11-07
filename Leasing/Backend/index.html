@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+
+
+<title>后端设计 | 开发日志</title>
+
+
+
+    <link rel="icon" href="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/images/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/js/script.js"></script>
+    
+    <script src="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">开发日志</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/categories/Leasing">租赁</a>
+                
+                    <a class="menu-item" href="/categories/Others">其他</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">开发日志</a><a id="mobile-toggle-theme"></a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/categories/Leasing">租赁</a>
+                
+                    <a class="menu-item" href="/categories/Others">其他</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">后端设计</h1>
+            
+                <div class="post-meta">
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">July 26, 2019&nbsp;&nbsp;20:45:04</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Leasing/">Leasing</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h3 id="文档说明"><a href="#文档说明" class="headerlink" title="文档说明"></a>文档说明</h3><p>本文档是针对cvicse-leasing项目的后端设计与开发的说明文档，旨在介绍后端代码中的架构设计，代码设计，并介绍在后端开发中所使用的一些第三方模块的使用。希望通过本文档，能够帮助后端开发人员更好地理解我们的后端代码。</p>
+<h3 id="架构设计"><a href="#架构设计" class="headerlink" title="架构设计"></a>架构设计</h3><p>首先介绍一下本项目后端整体设计架构，本项目后端采用的是微服务架构。</p>
+<h4 id="1-什么是微服务"><a href="#1-什么是微服务" class="headerlink" title="1 什么是微服务"></a>1 什么是微服务</h4><p>所谓微服务架构是一种架构模式，它的主要思想其实很简单，就是将一个功能繁杂的单一服务拆分成多个微小的服务，而拆分的标准就是服务本身的独立性。举一个简单的例子，试想我们为一个宠物店写一套服务，我们会提供针对宠物的管理服务，会提供针对宠物店员工的管理服务，还会提供针对顾客的管理服务，按照单一服务的实现，我们会在一个服务的每一层写多个类来实现针对不同类型的服务，而按照微服务的设计思想，我们可以将这一整套服务拆分成多个不同的服务，每个服务运行在其独立的进程中，服务和服务之间采用轻量级的通信机制相互沟通（通常是基于HTTP的Restful API)。而这个宠物店的服务设计可以参考 <a href="https://github.com/spring-petclinic/spring-petclinic-microservices" target="_blank" rel="noopener">https://github.com/spring-petclinic/spring-petclinic-microservices</a>。<br>微服务的架构模式在我看来有以下这些好处：</p>
+<ul>
+<li>服务与服务之前独立，充分解耦。</li>
+<li>当某个服务出现问题时，开发人员可以快速定位，快速解决，并可以做到不影响其他服务。 </li>
+<li>服务完全独立测试、部署、升级、发布。</li>
+</ul>
+<h4 id="2-微服务的管理"><a href="#2-微服务的管理" class="headerlink" title="2 微服务的管理"></a>2 微服务的管理</h4><p>当采用微服务架构之后，就会需要进行微服务的管理工作，试想一个企业级的大型服务，可能动辄会有上百个微服务组成。本项目应用<a href="https://spring.io/projects/spring-cloud" title="Spring Cloud" target="_blank" rel="noopener">Spring Cloud</a>的一系列框架来对微服务进行管理，微服务是可以独立部署、水平扩展、独立访问的服务单元，Spring Cloud就是这些微服务的大管家，Spring Cloud中有很多非常好用的轮子，大家可以从Spring Cloud的<a href="https://cloud.spring.io/spring-cloud-static/Greenwich.SR2/multi/multi_spring-cloud.html" target="_blank" rel="noopener">官方文档</a>上面查看。</p>
+<h4 id="3-本项目架构"><a href="#3-本项目架构" class="headerlink" title="3 本项目架构"></a>3 本项目架构</h4><p>本项目目前主要应用了Spring Cloud中的服务注册中心<em>Eureka</em>和<em>Api-GateWay</em>两个框架来管理微服务，可以先看一下本项目目前的微服务架构图。<br><img src="http://cdn.njuics.cn/microservice.png" alt></p>
+<h5 id="3-1-服务注册与发现"><a href="#3-1-服务注册与发现" class="headerlink" title="3.1 服务注册与发现"></a>3.1 服务注册与发现</h5><p>目前后端有两个服务，分别是流程管理服务和合同服务，首先介绍一下<a href="https://cloud.spring.io/spring-cloud-static/spring-cloud-netflix/2.2.0.M1/" target="_blank" rel="noopener">Eureka</a>，Eureka是Netflix开源的一款提供服务注册和发现的产品，它提供了完整的Service Registry和Service Discovery实现。也是springcloud体系中最重要最核心的组件之一。简而言之，Eureka是所有微服务的注册中心，它本身也是一个独立的服务，其他所有的服务可以注册在Eureka上进行统一的管理。<br>而Eureka的实现也很简单，首先需要构建一个Eureka Server。首先在pom.xml中添加依赖。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-eureka-server<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后在启动代码application添加<code>@EnableEurekaServer</code>注解，表示该服务是一个Eureka Server。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableEurekaServer</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LeasingEurekaApplication</span> </span>&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(LeasingEurekaApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后需要在<code>application.yml</code>进行一些必要的配置，在项目的<code>resource</code>目录下有三个<code>.yml</code>文件，<code>application-dev.yml</code>表示本地运行时的配置文件，所以看该文件即可。</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line"><span class="attr">  port:</span> <span class="number">8761</span> <span class="comment">#服务的端口号</span></span><br><span class="line"><span class="attr">eureka:</span></span><br><span class="line"><span class="attr">  instance:</span></span><br><span class="line"><span class="attr">    hostname:</span> <span class="string">localhost</span></span><br><span class="line">  <span class="comment"># standalone mode</span></span><br><span class="line"><span class="attr">  client:</span></span><br><span class="line"><span class="attr">    registerWithEureka:</span> <span class="literal">false</span>   <span class="comment">#表示是否将自己注册到Eureka Server，默认为true</span></span><br><span class="line"><span class="attr">    fetchRegistry:</span> <span class="literal">false</span>     <span class="comment">#表示是否从Eureka Server获取注册信息，默认为true</span></span><br><span class="line"><span class="attr">    serviceUrl:</span></span><br><span class="line"><span class="attr">      defaultZone:</span> <span class="attr">http://$&#123;eureka.instance.hostname&#125;:$&#123;server.port&#125;/eureka/</span>  <span class="comment">#设置与Eureka Server交互的地址</span></span><br></pre></td></tr></table></figure>
+
+<p>主要看<code>第8行</code>和<code>第9行</code>，因为本服务是Eureka Server,所以需要将这两个属性设置为<code>false</code>。而其他需要注册到Eureka上的服务采用默认值即可。<br>然后需要将其他微服务配置为Eureka CLient，下面以合同管理服务为例进行配置。<br>同样先在<code>pom.xml</code>中添加依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-netflix-eureka-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-commons<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.1.2.RELEASE<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后在启动代码application添加<code>@EnableDiscoveryClient</code>注解，表示该服务是一个Eureka Client。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LeasingBackendApplication</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		SpringApplication.run(LeasingBackendApplication.class, args);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>最后在<code>application-dev.yml</code>中加入Eureka Server的地址</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">eureka:</span></span><br><span class="line"><span class="attr">  client:</span></span><br><span class="line"><span class="attr">    serviceUrl:</span></span><br><span class="line"><span class="attr">      defaultZone:</span> <span class="attr">http://localhost:8761/eureka/</span></span><br></pre></td></tr></table></figure>
+
+<p>需要注意的是，要先启动<strong>eureka-service-discovery</strong>服务，再启动其他服务。访问<code>localhost:8761</code>看一下。<br><img src="http://cdn.njuics.cn/eureka.png" alt><br>这样简单的微服务注册与发现就基本实现了。</p>
+<h5 id="3-2-Api-Gateway"><a href="#3-2-Api-Gateway" class="headerlink" title="3.2 Api-Gateway"></a>3.2 Api-Gateway</h5><p>本项目用Spring Cloud的<a href="https://cloud.spring.io/spring-cloud-static/spring-cloud-gateway/2.2.0.M1/" target="_blank" rel="noopener">Api-GateWay</a>来实现路由的统一获取和转发，简单来说，因为不同的微服务需要运行在不同的端口，这样的话，前端访问不同的服务就要通过不同的端口进行访问，这样实际上是非常麻烦和不优雅的。而Api-GateWay能实现的最基本的功能就是让前端访问Api-GateWay的端口，然后在Api-Gateway内部进行统一的路由转发，将不同的访问分发给不同的服务，就像项目架构图中展示的那样，因此Api-Gateway本身也是一个微服务，需要将其注册到eureka上去。然后看一下具体的配置代码。<br>首先需要在<code>pom.xml</code>中加入必要的依赖:</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework.cloud<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-cloud-starter-gateway<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后在<code>application-dev.yml</code>中配置基本的路由</p>
+<figure class="highlight yml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">server:</span></span><br><span class="line"><span class="attr">  port:</span> <span class="number">8082</span></span><br><span class="line"><span class="attr">spring:</span></span><br><span class="line"><span class="attr">  application:</span></span><br><span class="line"><span class="attr">    name:</span> <span class="string">spring-cloud-apiGateway</span></span><br><span class="line"><span class="attr">  cloud:</span></span><br><span class="line"><span class="attr">    gateway:</span></span><br><span class="line"><span class="attr">      routes:</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">activiti_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">http://localhost:8081/</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line"><span class="bullet">            -</span> <span class="string">Path=/api/processInstances/**</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">contract_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">http://localhost:8000/</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line"><span class="bullet">            -</span> <span class="string">Path=/api/contracts/**</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">t_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">http://localhost:8000/</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line"><span class="bullet">            -</span> <span class="string">Path=/api/templates/**</span></span><br><span class="line"><span class="attr">        - id:</span> <span class="string">front_route</span></span><br><span class="line"><span class="attr">          uri:</span> <span class="attr">http://localhost:8000/</span></span><br><span class="line"><span class="attr">          predicates:</span></span><br><span class="line"><span class="bullet">            -</span> <span class="string">Path=/**</span></span><br></pre></td></tr></table></figure>
+
+<p>各字段含义如下:  </p>
+<ul>
+<li>id：我们自定义的路由 ID，保持唯一</li>
+<li>uri：目标服务地址</li>
+<li>predicates：路由条件，Predicate 接受一个输入参数，返回一个布尔值结果。该接口包含多种默认方法来将 Predicate 组合成其他复杂的逻辑（比如：与，或，非）。</li>
+<li>filters：过滤规则，本示例暂时没用。</li>
+</ul>
+<p><code>**</code>表示完全匹配，所以前端访问<code>localhost:8082/api/processInstances</code>时，会转发到<code>localhost:8081/api/processInstances</code>，即流程管理服务的端口。这样就可以简单地实现路由的统一获取和内部转发。当然Api-Gateway的功能远不止此，它还能实现路由的筛选，过滤等功能。</p>
+<h5 id="3-3-小结"><a href="#3-3-小结" class="headerlink" title="3.3 小结"></a>3.3 小结</h5><p>本项目利用Spring Cloud提供的两个轮子Eureka和Api-Gateway简单地搭建了一个微服务架构，当然Spring Cloud家族有很多高效简单的工具，可以参考Spring官方的<a href="https://github.com/spring-petclinic/spring-petclinic-microservices" target="_blank" rel="noopener">宠物店例子</a>。</p>
+<h3 id="合同管理服务"><a href="#合同管理服务" class="headerlink" title="合同管理服务"></a>合同管理服务</h3><p>合同模块采用<a href="https://spring.io/projects/spring-boot" target="_blank" rel="noopener">Spring Boot</a>+<a href="https://docs.spring.io/spring-data/jpa/docs/2.1.9.RELEASE/reference/html/" target="_blank" rel="noopener">JPA</a>+<a href="https://docs.mongodb.com/" target="_blank" rel="noopener">MongoDB</a>+<a href="https://javers.org/documentation/repository-examples/" target="_blank" rel="noopener">JaVers</a>实现。代码实现中需要对合同模板和合同这两种对象进行处理，但是这两种对象除了数据格式不同之外没有其他的区别，包括调用的接口也是完全相似的，所以在本文档中主要针对合同模块进行说明。</p>
+<h4 id="1-数据层设计"><a href="#1-数据层设计" class="headerlink" title="1 数据层设计"></a>1 数据层设计</h4><p>合同模块没有采用传统的关系型数据库，例如MySQL数据库，而是采用了文档型数据库，主要是因为本服务数据主要是文档型的，不适合采用key-value型数据库，试想将动辄上万字的合同内容存在MySQL中是不合理的，而文档型数据库存储的数据格式类似JSON，如下图所示，增删改查的效率也更高。本服务采用MongoDB，它是一种典型的文档型数据库。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">  id: 1</span><br><span class="line">  content:[</span><br><span class="line">    &#123;</span><br><span class="line">      title: &quot;demo&quot;,</span><br><span class="line">    &#125;,</span><br><span class="line">    &#123;</span><br><span class="line">      content: &quot;demo&quot;,</span><br><span class="line">    &#125;</span><br><span class="line">  ]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-接口设计"><a href="#2-接口设计" class="headerlink" title="2 接口设计"></a>2 接口设计</h4><p>所有后端接口全都采用<a href="https://spring.io/guides/gs/rest-service/" target="_blank" rel="noopener">Restful</a>风格，服务中采用<a href="https://www.baeldung.com/swagger-2-documentation-for-spring-rest-api" target="_blank" rel="noopener">swagger-ui</a>来实现API文档可视化，而它的配置也很简单，首先添加必要的依赖：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.springfox<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>springfox-swagger2<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>io.springfox<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>springfox-swagger-ui<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>2.9.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后在<code>config</code>目录下，添加<code>SwaggerConfig.java</code>:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Configuration</span></span><br><span class="line"><span class="meta">@EnableSwagger</span>2</span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">SwaggerConfig</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Docket <span class="title">api</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> Docket(DocumentationType.SWAGGER_2)</span><br><span class="line">                .select().apis(RequestHandlerSelectors.any()).paths(PathSelectors.any()).build();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样就可以在<code>http://localhost:8000/swagger-ui.html#/</code>中查看所有的接口，包括需要的参数类型，返回值类型等，并可以测试接口。如图所示：<br><img src="http://cdn.njuics.cn/swagger.png" alt><br>可以看到，除了基本的增删改查接口之外，还有一个获取合同历史版本的接口，而这个接口是依靠<a href="https://javers.org/documentation/repository-examples/" target="_blank" rel="noopener">JaVers</a>来实现的。</p>
+<h4 id="3-版本控制"><a href="#3-版本控制" class="headerlink" title="3 版本控制"></a>3 版本控制</h4><p>JaVers是一个轻量级，完全开源的Java库，用于追踪和记录数据中的更改。它可以配合repository使用，只需要添加一行注解<code>@JaversSpringDataAuditable</code>即可。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@JaversSpringDataAuditable</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ContractRepository</span> <span class="keyword">extends</span> <span class="title">MongoRepository</span>&lt;<span class="title">Contract</span>, <span class="title">String</span>&gt; </span>&#123;</span><br><span class="line">    <span class="function">Contract <span class="title">findByContent</span><span class="params">(JSONObject content)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样，当数据库中有数据发生修改时，JaVers就会自动追踪和记录数据库中发生的修改。仔细看一遍它的文档，会发现JaVers使用起来应该相对简单的，它只有<code>Shadows</code>, <code>Snapshots</code>,<code>Changes</code>这三个类型，这三个不同的类型在我看来主要是追踪记录数据的范围不同。<code>Changes</code>侧重记录变化，<code>Shadows</code>侧重获取实体变化，而<code>Snapshots</code>则无脑地将所有的记录信息全部给你。举例来看，在<code>Changes</code>能够获取的信息最少，它只会记录某个实体发生的变化，这是JaVers官方文档中使用<code>Changes</code>的打印结果：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">Changes:</span><br><span class="line">* changes on org.javers.core.examples.model.Person/bob :</span><br><span class="line">  - &apos;name&apos; changed from &apos;Robert Martin&apos; to &apos;Robert C.&apos;</span><br><span class="line">  - &apos;position&apos; changed from &apos;&apos; to &apos;Developer&apos;</span><br></pre></td></tr></table></figure>
+
+<p><code>Shadows</code>记录的东西会多一些，可以通过它获取发生变化的某个实体的所有版本。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Shadows:</span><br><span class="line">Person&#123;login=&apos;bob&apos;, name=&apos;Robert C.&apos;, position=Developer&#125;</span><br><span class="line">Person&#123;login=&apos;bob&apos;, name=&apos;Robert Martin&apos;, position=null&#125;</span><br></pre></td></tr></table></figure>
+
+<p>但这还是不够的，因为理想的状态是，我们希望做到类似GitHub一样，用户可以通过<code>contractId</code>+<code>commitId</code>这两个属性来获取具体某个版本的实体，幸好用<code>Snapshots</code>可以做到，因为它记录了<code>commitId</code>。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">Snapshots:</span><br><span class="line">Snapshot&#123;commit:2.0, id:...Person/bob, version:2, (login:bob, name:Robert C., position:Developer)&#125;</span><br><span class="line">Snapshot&#123;commit:1.0, id:...Person/bob, version:1, (login:bob, name:Robert Martin)&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这样我们就可以利用<code>Snapshots</code>的接口，拿到我们需要的版本号和合同内容，实现版本控制。来看一下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> Contract <span class="title">getContractWithJaversCommitId</span><span class="params">(String contractId, String commitId)</span> <span class="keyword">throws</span> ContractNotFoundException</span>&#123;</span><br><span class="line">    Contract contract = <span class="keyword">this</span>.getContract(contractId);  <span class="comment">//根据合同id获取合同</span></span><br><span class="line">    JqlQuery jqlQuery= QueryBuilder.byInstance(contract).build();  <span class="comment">//根据合同实体构建jqlQUery</span></span><br><span class="line">    List&lt;CdoSnapshot&gt; snapshots = javers.findSnapshots(jqlQuery);  <span class="comment">//获取合同实体的所有snapshots</span></span><br><span class="line">    <span class="keyword">for</span>(CdoSnapshot snapshot:snapshots)&#123;</span><br><span class="line">        <span class="keyword">if</span>(snapshot.getCommitId().getMajorId() == Integer.parseInt(commitId))   <span class="comment">//遍历snapshots，根据commitId返回对应版本的合同</span></span><br><span class="line">            <span class="keyword">return</span> JSON.parseObject(javers.getJsonConverter().toJson(snapshot.getState()),Contract.class);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>至于对版本进行其他类型的控制管理，请详细阅读JaVers的<a href="https://javers.org/documentation" target="_blank" rel="noopener">官方文档</a>。</p>
+<h3 id="流程管理服务"><a href="#流程管理服务" class="headerlink" title="流程管理服务"></a>流程管理服务</h3><p>流程在后端设计中是非常常见的，除了对数据的增删改查，可以说流程是另外一种非常常见的服务，在本项目中，我们将流程从其他的服务中完全抽离出来，单独构建一个流程管理服务来管理项目中可能涉及的所有流程。本服务主要使用<a href="https://www.activiti.org/" target="_blank" rel="noopener">Activiti</a>流程引擎来帮助我们构建流程管理服务。</p>
+<h4 id="1-BPMN图"><a href="#1-BPMN图" class="headerlink" title="1 BPMN图"></a>1 BPMN图</h4><h4 id="2-接口说明"><a href="#2-接口说明" class="headerlink" title="2 接口说明"></a>2 接口说明</h4><h4 id="3-具体设计"><a href="#3-具体设计" class="headerlink" title="3 具体设计"></a>3 具体设计</h4>
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Leasing/Auth/">鉴权框架</a>
+            
+            
+            <a class="next" rel="next" href="/Leasing/CD/">集成与持续发布</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Old Cao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a></span>
+    </div>
+</footer>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-145118419-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-145118419-1');
+</script>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+
+
+<title>集成与持续发布 | 开发日志</title>
+
+
+
+    <link rel="icon" href="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/images/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/js/script.js"></script>
+    
+    <script src="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">开发日志</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/categories/Leasing">租赁</a>
+                
+                    <a class="menu-item" href="/categories/Others">其他</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">开发日志</a><a id="mobile-toggle-theme"></a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/categories/Leasing">租赁</a>
+                
+                    <a class="menu-item" href="/categories/Others">其他</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">集成与持续发布</h1>
+            
+                <div class="post-meta">
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">July 26, 2019&nbsp;&nbsp;20:45:04</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Leasing/">Leasing</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="项目部署部分"><a href="#项目部署部分" class="headerlink" title="项目部署部分"></a>项目部署部分</h2><h3 id="1-Docker镜像部署"><a href="#1-Docker镜像部署" class="headerlink" title="1. Docker镜像部署"></a>1. Docker镜像部署</h3><p>通过<code>Dockerfile</code>来对 <code>spring</code> 构建之后的 <code>jar</code> 文件build 出对应的镜像，并且使用 <code>docker-compose</code> 来进行多个 <code>docker</code> 镜像的整合。来起到最终的微服务架构部署的目标。</p>
+<p>在 <code>docker</code> 进行部署的过程中，使用过两个不同 <code>docker-compose</code> 的版本。现分别进行解释</p>
+<ul>
+<li><code>2.0</code> ：当前版本下，首先需要使用命令 <code>docker build . -t &lt;image_name&gt;</code> 来通过该目录下的 <code>Dockerfile</code> 进行构建镜像 。示例如下</li>
+</ul>
+<figure class="highlight dockerfile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">FROM</span> java</span><br><span class="line"><span class="keyword">ADD</span> ./cvicse.jar /root/cvicse.jar</span><br><span class="line"><span class="keyword">ENV</span> JAVA_OPTS=<span class="string">""</span></span><br><span class="line"><span class="keyword">EXPOSE</span> <span class="number">8000</span></span><br><span class="line"><span class="keyword">ENTRYPOINT</span> ["java","-jar","/root/cvicse.jar"]</span><br></pre></td></tr></table></figure>
+
+<p>该简单的 <code>Dockerfile</code> 指明镜像内存在的 <code>java</code> 环境，并且通过 <code>ADD ./cvicse.jar /root/cvicse.jar</code> 来把执行 jar 包添加至镜像文件内部；<code>EXPOSE 8000</code> 指明镜像内部提供端口为 <strong>8000</strong> ；  <code>ENTRYPOINT [&quot;java&quot;,&quot;-jar&quot;,&quot;/root/cvicse.jar&quot;]</code> 指明了镜像生成容器时执行的相关指令内容。在这里，即为简单的 jar 包运行</p>
+<ul>
+<li><code>3.0</code> ：当前版本下，可以直接在 <code>docker-compose</code> 文件内部进行镜像的构建；</li>
+</ul>
+<p>通过 </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">build:</span><br><span class="line">      context: .</span><br><span class="line">      dockerfile: Dockerfile</span><br><span class="line">      args:</span><br><span class="line">        - ARTIFACT_NAME=leasing-eureka-server-0.0.1-SNAPSHOT</span><br><span class="line">        - EXPOSED_PORT=8761</span><br></pre></td></tr></table></figure>
+
+<p>如上的配置方式，以  <code>context</code> 作为基路径内容、将需要进行镜像构建的文件名称作为 <code>dockerfile</code> 字段内容，同时可以附加镜像构建的参数。通过如上配置，不需要额外进行镜像构建的脚本，而可以采取直接 <code>docker-compose up --build -d</code> 来实现镜像构建和容器启动的目标</p>
+<h3 id="2-微服务"><a href="#2-微服务" class="headerlink" title="2. 微服务"></a>2. 微服务</h3><p>项目分为如下几个微服务</p>
+<table>
+<thead>
+<tr>
+<th>名称</th>
+<th>职能</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><code>leasing-discovery-server</code></td>
+<td>提供eureka注册服务，监控各个微服务</td>
+</tr>
+<tr>
+<td><code>leasing-api-gateway</code></td>
+<td>负责将请求进行微服务分发</td>
+</tr>
+<tr>
+<td><code>leasing-backend</code></td>
+<td>负责处理基本需求的业务</td>
+</tr>
+<tr>
+<td><code>leasing-activiti</code></td>
+<td>负责处理流程相关业务</td>
+</tr>
+<tr>
+<td><code>leasing-frontend</code></td>
+<td>负责前端静态文件展示</td>
+</tr>
+</tbody></table>
+<p>以上是最为简单的微服务架构方式：由 <code>discovery-server</code> 提供各个微服务的注册服务，各个微服务之间通过内网进行通讯。此时负责不同业务的微服务可以选择是否共享同一个数据库源。而 <code>api-gateway</code> 作为提供对外网关接口和对内的服务转发，能够及时分配各个微服务的职能(当业务量增大时，需要考虑扩展网关，避免其成为性能瓶颈)</p>
+<h4 id="2-1-Eureka注册服务"><a href="#2-1-Eureka注册服务" class="headerlink" title="2.1 Eureka注册服务"></a>2.1 Eureka注册服务</h4><p>首先建立 <code>discovery-server</code>, 其程序入口如下所示。<code>@EnableEurekaServer</code>指明该微服务作为 Eureka而给予其他微服务进行注册。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableEurekaServer</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LeasingEurekaApplication</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">        SpringApplication.run(LeasingEurekaApplication.class, args);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>此外，还通过如下配置文件的方式，提供将要进行的微服务进行连接使用</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">server:</span><br><span class="line">  port: 8761</span><br><span class="line"></span><br><span class="line">eureka:</span><br><span class="line">  instance:</span><br><span class="line">    hostname: localhost</span><br><span class="line">  # standalone mode</span><br><span class="line">  client:</span><br><span class="line">    registerWithEureka: false</span><br><span class="line">    fetchRegistry: false</span><br><span class="line">    serviceUrl:</span><br><span class="line">      defaultZone: http://$&#123;eureka.instance.hostname&#125;:$&#123;server.port&#125;/eureka/</span><br></pre></td></tr></table></figure>
+
+<p>对应的，在注册微服务端，按照如下方式编写即可完成注册操作：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">...main</span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableDiscoveryClient</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">LeasingBackendApplication</span> </span>&#123;</span><br><span class="line">	<span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">main</span><span class="params">(String[] args)</span> </span>&#123;</span><br><span class="line">		SpringApplication.run(LeasingBackendApplication.class, args);</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">...application-buildDocker.yml</span><br><span class="line">eureka:</span><br><span class="line">  instance:</span><br><span class="line">    hostname: discovery-server</span><br><span class="line">  client:</span><br><span class="line">    serviceUrl:</span><br><span class="line">      defaultZone: http:<span class="comment">//$&#123;eureka.instance.hostname&#125;:8761/eureka/</span></span><br><span class="line">      </span><br><span class="line">...</span><br></pre></td></tr></table></figure>
+
+<p>所有其他的微服务都需要注册 <code>Eureka</code> 服务，故运行时，需要先开启 <code>Eureka</code> 服务之后再开启其他的服务。</p>
+<h4 id="2-2-网关配置"><a href="#2-2-网关配置" class="headerlink" title="2.2 网关配置"></a>2.2 网关配置</h4><p>对外界来说，微服务架构下的系统本身可以看做是一个系统，那么如何将单一的一个请求信息分发到指定的微服务进行实现，则是网关 Api-Gateway 需要进行配置的工作。</p>
+<p>现配置如下：</p>
+<p>在这里，将请求uri 前缀为</p>
+<ul>
+<li><code>/api/processInstances/**</code> 分配给 <code>leasing-activiti</code> 微服务, 即 <code>localhost:8081</code></li>
+<li><code>/api/contracts/**</code> 和 <code>/api/tempaltes/**</code> 分配给 <code>leasing-backend</code> 微服务，即 <code>localhost:8000</code></li>
+<li><code>/**</code> 分配给 <code>leasing-frontend</code>微服务，作为静态文件的入口。</li>
+</ul>
+<p>注意：如果不同的分配规则中出现了路由重复的现象，那么就采取贪心策略</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line">server:</span><br><span class="line">  port: 8082</span><br><span class="line">spring:</span><br><span class="line">  application:</span><br><span class="line">    name: spring-cloud-apiGateway</span><br><span class="line">  cloud:</span><br><span class="line">    gateway:</span><br><span class="line">      routes:</span><br><span class="line">        - id: activiti_route</span><br><span class="line">          uri: http://localhost:8081/</span><br><span class="line">          predicates:</span><br><span class="line">            - Path=/api/processInstances/**</span><br><span class="line">        - id: contract_route</span><br><span class="line">          uri: http://localhost:8000/</span><br><span class="line">          predicates:</span><br><span class="line">            - Path=/api/contracts/**</span><br><span class="line">        - id: t_route</span><br><span class="line">          uri: http://localhost:8000/</span><br><span class="line">          predicates:</span><br><span class="line">            - Path=/api/templates/**</span><br><span class="line">        - id: front_route</span><br><span class="line">          uri: http://localhost:9000/</span><br><span class="line">          predicates:</span><br><span class="line">            - Path=/**</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-前后端一体化打包实现"><a href="#3-前后端一体化打包实现" class="headerlink" title="3.前后端一体化打包实现"></a>3.前后端一体化打包实现</h3><p>传统的Web项目前端部分会通过 <code>webpack</code> 构建的方式，根据已有的代码得到静态文件，并且委托 nginx 这类的代理工具来进行项目的部署工作。这里将前端 <code>umi</code> 打包后的静态文件直接作为 <code>spring-boot</code> 项目的静态文件，而后打包形成一个整体的 <code>jar</code> 包，通过运行 jar 包来直接访问前端内容，并且可以在相同的端口下进行后端请求发送。</p>
+<p>主要的逻辑代码如下</p>
+<ul>
+<li>主 <code>maven</code> 给定项目基路径、项目构建顺序</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">				    <span class="tag">&lt;<span class="name">modules</span>&gt;</span></span><br><span class="line">       				<span class="tag">&lt;<span class="name">module</span>&gt;</span>client<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line">       				<span class="tag">&lt;<span class="name">module</span>&gt;</span>server<span class="tag">&lt;/<span class="name">module</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">modules</span>&gt;</span></span><br><span class="line">....</span><br><span class="line">						<span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">               <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.commonjava.maven.plugins<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">               <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>directory-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">               <span class="tag">&lt;<span class="name">version</span>&gt;</span>0.1<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">               <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">                   <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">                       <span class="tag">&lt;<span class="name">id</span>&gt;</span>directories<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">                       <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                           <span class="tag">&lt;<span class="name">goal</span>&gt;</span>directory-of<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">                       <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">                       <span class="tag">&lt;<span class="name">phase</span>&gt;</span>initialize<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">                       <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                           <span class="tag">&lt;<span class="name">property</span>&gt;</span>leasing.basedir<span class="tag">&lt;/<span class="name">property</span>&gt;</span></span><br><span class="line">                           <span class="tag">&lt;<span class="name">project</span>&gt;</span></span><br><span class="line">                               <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.cvicse<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">                               <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>leasing-frontend<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">                           <span class="tag">&lt;/<span class="name">project</span>&gt;</span></span><br><span class="line">                       <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">                   <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">               <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>directory-maven-plugin</code> 该插件给出了项目的基路径 <code>leasing.basedir</code> ，并且能够直接由子maven继承并且进行引用。</p>
+<p>通过 <code>module</code> 的顺序，来指定：先进行 client 子 maven 的构建，之后进行 server 子 maven 的构建</p>
+<ul>
+<li>server 子 maven 设计</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>maven-resources-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">version</span>&gt;</span>3.1.0<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">id</span>&gt;</span>position-react-build<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">goal</span>&gt;</span>copy-resources<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">phase</span>&gt;</span>prepare-package<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">outputDirectory</span>&gt;</span>$&#123;project.basedir&#125;/target/classes/public<span class="tag">&lt;/<span class="name">outputDirectory</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;<span class="name">resources</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;<span class="name">resource</span>&gt;</span></span><br><span class="line">							<span class="comment">&lt;!--静态资源源目录--&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">directory</span>&gt;</span>$&#123;leasing.basedir&#125;/client/dist<span class="tag">&lt;/<span class="name">directory</span>&gt;</span></span><br><span class="line">							<span class="tag">&lt;<span class="name">filtering</span>&gt;</span>false<span class="tag">&lt;/<span class="name">filtering</span>&gt;</span></span><br><span class="line">						<span class="tag">&lt;/<span class="name">resource</span>&gt;</span></span><br><span class="line">					<span class="tag">&lt;/<span class="name">resources</span>&gt;</span></span><br><span class="line">				<span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">			<span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>在 <code>prepare-package</code> 阶段进行资源内容的拷贝，由 <code>maven-resources-plugin</code> 该插件进行资源复制操作。其中资源源路径为 <code>${leasing.basedir}/client/dist</code> ，目标路径为<code>${project.basedir}/target/classes/public</code></p>
+<ul>
+<li>client 子 maven 设计</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.github.eirslett<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>frontend-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">version</span>&gt;</span>1.7.6<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">workingDirectory</span>&gt;</span>$&#123;project.basedir&#125;<span class="tag">&lt;/<span class="name">workingDirectory</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">installDirectory</span>&gt;</span>$&#123;project.basedir&#125;<span class="tag">&lt;/<span class="name">installDirectory</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">nodeVersion</span>&gt;</span>v8.9.4<span class="tag">&lt;/<span class="name">nodeVersion</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">npmVersion</span>&gt;</span>5.6.0<span class="tag">&lt;/<span class="name">npmVersion</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">phase</span>&gt;</span>prepare-package<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">id</span>&gt;</span>install node and npm<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">             <span class="tag">&lt;<span class="name">goal</span>&gt;</span>install-node-and-npm<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">id</span>&gt;</span>npm install<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">             <span class="tag">&lt;<span class="name">goal</span>&gt;</span>npm<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">           <span class="comment">&lt;!-- optional: default phase is "generate-resources" --&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">phase</span>&gt;</span>prepare-package<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">             <span class="comment">&lt;!-- optional: The default argument is actually</span></span><br><span class="line"><span class="comment">              "install", so unless you need to run some other npm command,</span></span><br><span class="line"><span class="comment">              you can remove this whole &lt;configuration&gt; section.</span></span><br><span class="line"><span class="comment">              --&gt;</span></span><br><span class="line">             <span class="tag">&lt;<span class="name">arguments</span>&gt;</span>install<span class="tag">&lt;/<span class="name">arguments</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">id</span>&gt;</span>npm run build<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">phase</span>&gt;</span>prepare-package<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">             <span class="tag">&lt;<span class="name">goal</span>&gt;</span>npm<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">             <span class="tag">&lt;<span class="name">arguments</span>&gt;</span>run build<span class="tag">&lt;/<span class="name">arguments</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><code>frontend-maven-plugin</code> 该插件实现了在 maven 构建过程中执行 <code>npm</code> 相关的指令。在如上的设计中，以 <code>npm install</code> 和 <code>npm run build</code> 分别进行依赖的安装和构建，并且在 <code>prepare-package</code>阶段执行这些指令</p>
+<h3 id="4-微服务部署实现"><a href="#4-微服务部署实现" class="headerlink" title="4.微服务部署实现"></a>4.微服务部署实现</h3><p>当前版本 ： <a href="https://github.com/nemoworks/leasing/releases/tag/0.0.3-20190803" target="_blank" rel="noopener">https://github.com/nemoworks/leasing/releases/tag/0.0.3-20190803</a></p>
+<p>具体部署步骤如下</p>
+<ol>
+<li>本地打包、资源上传 <code>mvn clean package -PbuildDcoker &amp;&amp; bash /bash/scp.sh -h &lt;ip&gt;</code></li>
+</ol>
+<p>前一条指令作为maven 的构建，其中设定环境变量为 <code>buildDocker</code> ; 该过程可以为每一个 (当前一共为5个)微服务生成一个 jar 包。</p>
+<p>后一条指令进行资源的远程拷贝，具体的bash指令 如下</p>
+<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># h is the host name</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="built_in">getopts</span> h: option</span><br><span class="line"><span class="keyword">do</span></span><br><span class="line"><span class="keyword">case</span> <span class="string">"<span class="variable">$&#123;option&#125;</span>"</span></span><br><span class="line"><span class="keyword">in</span></span><br><span class="line">h) HOST=<span class="variable">$&#123;OPTARG&#125;</span>;;</span><br><span class="line"><span class="keyword">esac</span></span><br><span class="line"><span class="keyword">done</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">scp leasing-activiti/target/leasing-activiti-0.0.1-SNAPSHOT.jar root@<span class="variable">$HOST</span>:/root/cvicse/leasing-activiti-0.0.1-SNAPSHOT.jar</span><br><span class="line">scp leasing-api-gateway/target/leasing-api-gateway-0.0.1-SNAPSHOT.jar root@<span class="variable">$HOST</span>:/root/cvicse/leasing-api-gateway-0.0.1-SNAPSHOT.jar</span><br><span class="line">scp leasing-backend/target/leasing-backend-0.0.1-SNAPSHOT.jar root@<span class="variable">$HOST</span>:/root/cvicse/leasing-backend-0.0.1-SNAPSHOT.jar</span><br><span class="line">scp leasing-eureka-server/target/leasing-eureka-server-0.0.1-SNAPSHOT.jar root@<span class="variable">$HOST</span>:/root/cvicse/leasing-eureka-server-0.0.1-SNAPSHOT.jar</span><br><span class="line">scp leasing-frontend/server/target/leasing-frontend-server-0.0.1-SNAPSHOT.jar root@<span class="variable">$HOST</span>:/root/cvicse/leasing-frontend-server-0.0.1-SNAPSHOT.jar</span><br><span class="line">scp bash/buildDocker.sh root@<span class="variable">$HOST</span>:/root/cvicse/buildDocker.sh</span><br><span class="line">scp docker-compose.yml root@<span class="variable">$HOST</span>:/root/cvicse/docker-compose.yml</span><br><span class="line">scp setup.sh root@<span class="variable">$HOST</span>:/root/cvicse/setup.sh</span><br><span class="line">scp docker/Dockerfile root@<span class="variable">$HOST</span>:/root/cvicse/Dockerfile</span><br><span class="line">scp docker/dockerize.tar.gz root@<span class="variable">$HOST</span>:/root/cvicse/dockerize.tar.gz</span><br></pre></td></tr></table></figure>
+
+<p>如上指令将所有的jar包，远端部署需要的 docker 文件和脚本文件均复制到远端的 <code>/root/cvicse</code> 目录下。</p>
+<ol start="2">
+<li>远端镜像构建与容器创建</li>
+</ol>
+<p>在第一步正常执行之后，通过ssh 远程连接，进入 <code>/root/cvicse</code> 目录下，进行 <code>bash setup.sh</code>来进行镜像的构建。具体如下</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">docker-compose down</span><br><span class="line">docker rmi $(docker images | grep <span class="string">"leasing/"</span> | awk <span class="string">'&#123;print $3&#125;'</span>)</span><br><span class="line">docker rmi $(docker images | grep <span class="string">"none"</span> | awk <span class="string">'&#123;print $3&#125;'</span>)</span><br><span class="line">docker network create backend</span><br><span class="line">docker network create proxy</span><br><span class="line">docker-compose up --build -d &amp;&amp; docker-compose logs -f</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>1 - 3 行进行了原有环境中镜像的清理工作</li>
+<li>4，5 行新建了两个docker network : <code>backend</code> 和 <code>proxy</code>。<ul>
+<li><code>backend</code> 网络作为微服务的内网环境，仅由 <code>leasing-api-gateway</code> 来对外暴露端口</li>
+<li><code>proxy</code> 供 <code>nginx</code>镜像反向代理使用。通过 <code>nginx</code> 的动态域名添加和证书添加，能够让同样在 <code>proxy</code> 网络下的服务自动进行域名解析和证书的支持。</li>
+</ul>
+</li>
+<li>第 6 行进行镜像的构建，具体构建方式参见 <code>1. Docker镜像部署</code></li>
+</ul>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Leasing/Backend/">后端设计</a>
+            
+            
+            <a class="next" rel="next" href="/Leasing/Frontend/">前端设计</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Old Cao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a></span>
+    </div>
+</footer>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-145118419-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-145118419-1');
+</script>
+
+    </div>
+</body>
+</html>

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+
+
+<title>鉴权框架 | 开发日志</title>
+
+
+
+    <link rel="icon" href="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/images/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/js/script.js"></script>
+    
+    <script src="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">开发日志</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/categories/Leasing">租赁</a>
+                
+                    <a class="menu-item" href="/categories/Others">其他</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">开发日志</a><a id="mobile-toggle-theme"></a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/categories/Leasing">租赁</a>
+                
+                    <a class="menu-item" href="/categories/Others">其他</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">鉴权框架</h1>
+            
+                <div class="post-meta">
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">August 29, 2019&nbsp;&nbsp;20:45:04</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Leasing/">Leasing</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h2 id="鉴权框架说明文档"><a href="#鉴权框架说明文档" class="headerlink" title="鉴权框架说明文档"></a>鉴权框架说明文档</h2><h4 id="0-概述"><a href="#0-概述" class="headerlink" title="0. 概述"></a>0. 概述</h4><ul>
+<li>使用spring AOP 和注解添加的方式，提供 <code>web</code> 层的请求拦截、资源数据的行过滤和列过滤</li>
+<li>拦截提供动态资源的配置，支持对于资源类型的指定、资源操作行为的指定</li>
+<li>数据的行过滤支持自定义过滤策略</li>
+<li>数据的列过滤支持深度过滤，通过 <code>json</code> 体的解析进行框架式的资源字段筛选</li>
+</ul>
+<h4 id="1-Auth鉴权模块概述"><a href="#1-Auth鉴权模块概述" class="headerlink" title="1. Auth鉴权模块概述"></a>1. Auth鉴权模块概述</h4><h5 id="模块设计图"><a href="#模块设计图" class="headerlink" title="模块设计图"></a>模块设计图</h5><p><img src="https://i.loli.net/2019/08/29/qN3xWA21erpDkni.jpg" alt></p>
+<h3 id="2-Auth鉴权模块使用说明"><a href="#2-Auth鉴权模块使用说明" class="headerlink" title="2. Auth鉴权模块使用说明"></a>2. Auth鉴权模块使用说明</h3><h4 id="2-1-认证"><a href="#2-1-认证" class="headerlink" title="2.1 认证"></a>2.1 认证</h4><p>​    认证采用传统的 <code>spring security</code> 的认证方式，通过实现 <code>AuthenticationProvider</code> 的认证方法 <code>public Authentication authenticate(Authentication authentication)</code> 来实现自定义方式的登录。具体登录接口位于 <code>/api/auth/login</code> 下。</p>
+<p>​    如上的认证方式后，服务端将会把 <code>token</code> 加入到响应头的 <code>cookie</code> 中，此后再次发送 <code>http</code> 请求只需要继续携带相同的 <code>token</code> 内容，服务端可以进行解析来判定请求者身份信息，从而帮助框架进行下一步的拦截、过滤行为。</p>
+<h4 id="2-2-控制层拦截与列过滤"><a href="#2-2-控制层拦截与列过滤" class="headerlink" title="2.2 控制层拦截与列过滤"></a>2.2 控制层拦截与列过滤</h4><h5 id="2-2-1-实现AuthModelRealm来定制控制层拦截方式"><a href="#2-2-1-实现AuthModelRealm来定制控制层拦截方式" class="headerlink" title="2.2.1 实现AuthModelRealm来定制控制层拦截方式"></a>2.2.1 实现AuthModelRealm来定制控制层拦截方式</h5><p>使用方式参照 <code>shiro</code>的依赖注入，可以进行灵活的拦截器逻辑编写。</p>
+<p>通过实现 <code>AuthModelRealm</code> 接口，具体需要实现的方法如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AuthModelRealm</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">boolean</span> <span class="title">IsPermitted</span><span class="params">(ActionType[] actionTypes, Class&lt;? extends BaseEntity&gt; model)</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">void</span> <span class="title">onPermissionFailed</span><span class="params">()</span> <span class="keyword">throws</span> RuntimeException</span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">Object <span class="title">postHandle</span><span class="params">(Object result)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>IsPermitted</code> 方法接收 <code>ActionType</code> 列表和实体类的 <code>Class</code> 对象，判定控制层拦截器是否需要拦截</li>
+<li><code>onPermissionFailed</code> 方法用于 <code>IsPermitted</code> 返回为 <code>true</code> 后的回调函数，这里可以设置异常的抛出、日志编写</li>
+<li><code>postHandle</code> 方法用于 <code>http</code> 请求将要返回时的数据过滤，可以进行 <code>json path</code> 的列筛选</li>
+</ul>
+<p>如果你想直接使用一个现成的实体类，<code>NormalAuthModelRealm</code> 将会是一个很好的选择。它已经实现了从 <code>token</code> 中获取用户信息并判定是否需要进行请求拦截、异常处理和数据实体的列的深度过滤。</p>
+<h5 id="2-2-2-使用AuthModel注解来辅助-AOP-编程"><a href="#2-2-2-使用AuthModel注解来辅助-AOP-编程" class="headerlink" title="2.2.2 使用AuthModel注解来辅助 AOP 编程"></a>2.2.2 使用AuthModel注解来辅助 AOP 编程</h5><p>框架中定义了注解 <code>AuthModel</code>,用于指示某一个方法所执行的操作类型，以及对应的行为对象类型。</p>
+<p>实例如下:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping</span>(<span class="string">"/pet"</span>)</span><br><span class="line"><span class="meta">@AuthModel</span>(targetModel = Pet.class, actionType = &#123;ActionType.QUERY&#125;)</span><br><span class="line"><span class="function"><span class="keyword">public</span> List&lt;Pet&gt; <span class="title">getPets</span><span class="params">()</span> </span>&#123;</span><br><span class="line">    logger.info(<span class="string">"Into resource [Pet]"</span>);</span><br><span class="line">    <span class="keyword">return</span> petRepository.findAll();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>在如上注解下，我们指明了资源类型为 <code>Pet</code>, 并且执行的行为是 <code>ActionType.QUERY</code>, 即查找 pet 资源。</p>
+<p><code>targetModel</code> 所能够接收的实体必须继承自 <code>BaseEntity</code> ; 行为类型 <code>actionType</code> 可以是 <code>ActionType</code> 枚举中的一个或多个。 </p>
+<h4 id="2-3-数据访问层资源的行过滤"><a href="#2-3-数据访问层资源的行过滤" class="headerlink" title="2.3 数据访问层资源的行过滤"></a>2.3 数据访问层资源的行过滤</h4><p>在用户请求的拦截过后，还需要根据用户或其用户组来进行资源列表的过滤。例如想要获取宠物列表信息，并且要求获取只和用户相关联的宠物列表，那么就需要进行资源的行过滤。</p>
+<h5 id="2-3-1-实现ModelHandler来进行定制化资源行过滤"><a href="#2-3-1-实现ModelHandler来进行定制化资源行过滤" class="headerlink" title="2.3.1 实现ModelHandler来进行定制化资源行过滤"></a>2.3.1 实现ModelHandler来进行定制化资源行过滤</h5><p>和 <code>AuthModelRealm</code> 相类似，使用者可以实现 <code>ModelHandler</code> 来进行自定义的行过滤方案。接口定义如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">ModelHandler</span> </span>&#123;</span><br><span class="line">    Object[] preHandle(ProceedingJoinPoint joinPoint);</span><br><span class="line"></span><br><span class="line">    <span class="function">Object <span class="title">postHandle</span><span class="params">(Object result)</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>preHandle</code> 在数据访问之前回调执行，可以进行数据访问条件的修改</li>
+<li><code>postHandle</code>在数据访问结束后回调执行，允许实现者按需进行定制化的行过滤</li>
+</ul>
+<p>类似的，有一个 <code>NormalAuthModelRealm</code> 已经实现了该接口，提供最简单的用户、组织层面的资源行过滤；如果有其他的业务需要，可以自行进行实现。</p>
+<h5 id="2-3-2-使用注解-QueryModel-辅助-AOP-编程"><a href="#2-3-2-使用注解-QueryModel-辅助-AOP-编程" class="headerlink" title="2.3.2 使用注解 QueryModel 辅助 AOP 编程"></a>2.3.2 使用注解 QueryModel 辅助 AOP 编程</h5><p>针对数据访问的过滤，框架定义了 <code>QueryModel</code> ，指明数据操作行为和操作对象的类型。</p>
+<ul>
+<li>操作行为默认是 <code>ActionType.QUERY</code> , 当前在业务不继续扩展的情况下仅支持查询操作前后的数据行过滤。如果需要进行其他操作类型的定制化方案，可以自行实现</li>
+<li>操作对象的实体必须继承自 <code>BaseEntity</code> </li>
+</ul>
+<h5 id="2-3-3-列过滤使用说明"><a href="#2-3-3-列过滤使用说明" class="headerlink" title="2.3.3 列过滤使用说明"></a>2.3.3 列过滤使用说明</h5><p>采取 <code>json</code> 字符串的解析，<code>NormalAuthModelRealm</code> 中的 <code>deepFilter</code> 使用两个参数进行深度过滤</p>
+<ol>
+<li>即将进行深度过滤的对象 <code>object</code></li>
+<li>深度过滤的json 框架 <code>framework</code></li>
+</ol>
+<p>我们要求 <code>framework</code>的格式必须和 <code>object</code> 的序列化格式相同。具体实例如下：</p>
+<p>我们给出一个原实体的json序列化表达式</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"name"</span>: <span class="string">"Huuuu"</span>,</span><br><span class="line">    <span class="attr">"knowledge"</span>: &#123;</span><br><span class="line">      <span class="attr">"level"</span>: <span class="number">2</span>,</span><br><span class="line">      <span class="attr">"school"</span>: &#123;</span><br><span class="line">        <span class="attr">"name"</span>: <span class="string">"NJU"</span>,</span><br><span class="line">        <span class="attr">"nation"</span>: <span class="string">"China"</span>,</span><br><span class="line">        <span class="attr">"province"</span>: <span class="string">"Jiang Su"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"nation"</span>: <span class="string">"China"</span>,</span><br><span class="line">    <span class="attr">"province"</span>: <span class="string">"Jiang Su"</span>,</span><br><span class="line">    <span class="attr">"likes"</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">"name"</span>: <span class="string">"13"</span>,</span><br><span class="line">        <span class="attr">"year"</span>: <span class="number">130</span></span><br><span class="line">      &#125;,</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">"name"</span>: <span class="string">"14"</span>,</span><br><span class="line">        <span class="attr">"year"</span>: <span class="number">140</span></span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>将其反序列化可以得到对应的 json 实体实例，为了方便起见，可以直接调用传统json框架的反序列化方法。</p>
+<p>我们再给出某一种筛选的json框架</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">&#123;</span><br><span class="line">    <span class="attr">"knowledge"</span>: &#123;</span><br><span class="line">      <span class="attr">"school"</span>: &#123;</span><br><span class="line">        <span class="attr">"name"</span>: <span class="string">"NJU"</span>,</span><br><span class="line">        <span class="attr">"nation"</span>: <span class="string">"China"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;,</span><br><span class="line">    <span class="attr">"likes"</span>: [</span><br><span class="line">      &#123;</span><br><span class="line">        <span class="attr">"year"</span>: <span class="number">130</span></span><br><span class="line">      &#125;</span><br><span class="line">    ]</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<p>所有在json框架中给出的字段，将会作为去除字段的指示。故 <code>deepFilter</code> 函数的返回值将会是去除了json框架中的字段后的剩余实体内容。</p>
+<p>注意，对于数组类型的数据，我们对于数组中的每一个实体都进行相同的列过滤策略，具体的json框架格式如下</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">"likes": [</span><br><span class="line">  &#123;</span><br><span class="line">    <span class="attr">"year"</span>: <span class="number">130</span></span><br><span class="line">  &#125;</span><br><span class="line">]</span><br></pre></td></tr></table></figure>
+
+<p>这里我们指示了需要去除 <code>linkes</code> 数组下的每一个元素的 <code>year</code> 字段。当然我们也支持如下的写法</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">"likes":&#123;</span><br><span class="line">    "year": 130</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-4-实现AuthManager-进行权限信息的缓存和读取"><a href="#2-4-实现AuthManager-进行权限信息的缓存和读取" class="headerlink" title="2.4 实现AuthManager 进行权限信息的缓存和读取"></a>2.4 实现AuthManager 进行权限信息的缓存和读取</h4><p>行过滤可以支持如下的 <code>AuthorizationScope</code> 类型：</p>
+<ul>
+<li>ALL. 表明可以接收到查询到的所有资源</li>
+<li>USER. 表明可以接收到由当前用户创建的资源</li>
+<li>ORGANIZATION. 表明可以接收到当前用户所属的组织，以及该组织的所有下属组织创建的资源</li>
+</ul>
+<p>该过滤策略当前进行全局配置，用 <code>query-scope.xml</code> 进行配置。</p>
+<p>举例如下：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8" ?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">root</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">scope</span>&gt;</span>USER<span class="tag">&lt;/<span class="name">scope</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">root</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>该配置文件指明了全局的行过滤策略为 <code>USER</code>, 即可实现对于资源的过滤，仅考虑其创建的用户。</p>
+<p><code>AuthManager</code> 支持对于配置文件的读取和缓存，能够给出当前请求用户的基本信息和组织部门信息，接口定义如下</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">interface</span> <span class="title">AuthManager</span> </span>&#123;</span><br><span class="line">    <span class="function">AuthorizationScope <span class="title">fetchAuthScope</span><span class="params">()</span></span>;</span><br><span class="line"></span><br><span class="line">    <span class="function">BaseEntity <span class="title">fetchPrinciple</span><span class="params">()</span></span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><code>fetchAuthScope</code> 进行配置文件的读取，读取后进行缓存</li>
+<li><code>fetchPrinciple</code>支持当前请求用户的基本信息和组织部门信息的获取</li>
+</ul>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Leasing/Development/">开发模式</a>
+            
+            
+            <a class="next" rel="next" href="/Leasing/Backend/">后端设计</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Old Cao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a></span>
+    </div>
+</footer>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-145118419-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-145118419-1');
+</script>
+
+    </div>
+</body>
+</html>

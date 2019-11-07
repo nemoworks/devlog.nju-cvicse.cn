@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+
+
+<title>前端设计 | 开发日志</title>
+
+
+
+    <link rel="icon" href="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/images/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/js/script.js"></script>
+    
+    <script src="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">开发日志</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/categories/Leasing">租赁</a>
+                
+                    <a class="menu-item" href="/categories/Others">其他</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">开发日志</a><a id="mobile-toggle-theme"></a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/categories/Leasing">租赁</a>
+                
+                    <a class="menu-item" href="/categories/Others">其他</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">前端设计</h1>
+            
+                <div class="post-meta">
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">July 26, 2019&nbsp;&nbsp;20:45:04</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Leasing/">Leasing</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h3 id="总体结构"><a href="#总体结构" class="headerlink" title="总体结构"></a>总体结构</h3><h4 id="1-文件目录结构"><a href="#1-文件目录结构" class="headerlink" title="1 文件目录结构"></a>1 文件目录结构</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br></pre></td><td class="code"><pre><span class="line">leasing-frontend</span><br><span class="line">├── CNAME //项目名</span><br><span class="line">├── README.md</span><br><span class="line">├── config //配置</span><br><span class="line">│   ├── config.js //配置文件</span><br><span class="line">│   ├── defaultSettings.js //默认配置（主题等）</span><br><span class="line">│   └── plugin.config.js //插件配置</span><br><span class="line">├── jest-puppeteer.config.js</span><br><span class="line">├── jest.config.js</span><br><span class="line">├── jsconfig.json</span><br><span class="line">├── mock //前端模拟接口</span><br><span class="line">│   ├── contractDB.js</span><br><span class="line">│   ├── notices.js</span><br><span class="line">│   ├── route.js</span><br><span class="line">│   ├── sheet.js</span><br><span class="line">│   ├── templateDB.js</span><br><span class="line">│   └── user.js</span><br><span class="line">├── package.json</span><br><span class="line">├── pom.xml</span><br><span class="line">├── public //公共图片资源</span><br><span class="line">│   ├── favicon.png</span><br><span class="line">│   └── icons</span><br><span class="line">│       ├── icon-128x128.png</span><br><span class="line">│       ├── icon-192x192.png</span><br><span class="line">│       └── icon-512x512.png</span><br><span class="line">├── src</span><br><span class="line">│   ├── assets //项目图片资源</span><br><span class="line">│   │   ├── add.png</span><br><span class="line">│   │   ├── form.png</span><br><span class="line">│   │   ├── logo.png</span><br><span class="line">│   │   ├── logo.svg</span><br><span class="line">│   │   ├── save.png</span><br><span class="line">│   │   └── tree.png</span><br><span class="line">│   ├── components //可复用组件</span><br><span class="line">│   │   ├── Authorized</span><br><span class="line">│   │   ├── CopyBlock</span><br><span class="line">│   │   ├── GlobalHeader</span><br><span class="line">│   │   ├── HeaderDropdown</span><br><span class="line">│   │   ├── HeaderSearch</span><br><span class="line">│   │   ├── NoticeIcon</span><br><span class="line">│   │   ├── PageLoading</span><br><span class="line">│   │   ├── Perish</span><br><span class="line">│   │   ├── SelectLang</span><br><span class="line">│   │   └── SettingDrawer</span><br><span class="line">│   ├── e2e</span><br><span class="line">│   │   ├── __mocks__</span><br><span class="line">│   │   ├── baseLayout.e2e.js</span><br><span class="line">│   │   └── topMenu.e2e.js</span><br><span class="line">│   ├── global.jsx</span><br><span class="line">│   ├── global.less</span><br><span class="line">│   ├── layouts //Layout组件</span><br><span class="line">│   │   ├── BasicLayout.jsx</span><br><span class="line">│   │   ├── BlankLayout.jsx</span><br><span class="line">│   │   ├── UserLayout.jsx</span><br><span class="line">│   │   └── UserLayout.less</span><br><span class="line">│   ├── locales //国际化配置</span><br><span class="line">│   │   ├── en-US</span><br><span class="line">│   │   ├── en-US.js</span><br><span class="line">│   │   ├── pt-BR</span><br><span class="line">│   │   ├── pt-BR.js</span><br><span class="line">│   │   ├── zh-CN</span><br><span class="line">│   │   ├── zh-CN.js //中英文配置</span><br><span class="line">│   │   ├── zh-TW</span><br><span class="line">│   │   └── zh-TW.js</span><br><span class="line">│   ├── manifest.json</span><br><span class="line">│   ├── models //model层文件</span><br><span class="line">│   │   ├── contract.js</span><br><span class="line">│   │   ├── contractList.js</span><br><span class="line">│   │   ├── global.js</span><br><span class="line">│   │   ├── login.js</span><br><span class="line">│   │   ├── processInstance.js</span><br><span class="line">│   │   ├── processList.js</span><br><span class="line">│   │   ├── setting.js</span><br><span class="line">│   │   ├── sheet.js</span><br><span class="line">│   │   ├── template.js</span><br><span class="line">│   │   ├── templateList.js</span><br><span class="line">│   │   └── user.js</span><br><span class="line">│   ├── pages //页面组件</span><br><span class="line">│   │   ├── 404.jsx</span><br><span class="line">│   │   ├── Authorized.jsx</span><br><span class="line">│   │   ├── ContractEditor //合同编辑页面</span><br><span class="line">│   │   ├── ContractList //合同列表页面</span><br><span class="line">│   │   ├── FinancialCalculator //金融计算器页面</span><br><span class="line">│   │   ├── ProcessInstance //流程管理页面</span><br><span class="line">│   │   ├── ProcessList //流程列表页面</span><br><span class="line">│   │   ├── TemplateEditor //模版编辑页面</span><br><span class="line">│   │   ├── TemplateList //模版列表页面</span><br><span class="line">│   │   ├── Welcome.jsx</span><br><span class="line">│   │   ├── document.ejs</span><br><span class="line">│   │   ├── index.css</span><br><span class="line">│   │   └── index.js</span><br><span class="line">│   ├── service-worker.js</span><br><span class="line">│   ├── services</span><br><span class="line">│   │   └── user.js</span><br><span class="line">│   └── utils</span><br><span class="line">│       ├── Authorized.js</span><br><span class="line">│       ├── authority.js</span><br><span class="line">│       ├── authority.test.js</span><br><span class="line">│       ├── request.js</span><br><span class="line">│       ├── utils.js</span><br><span class="line">│       ├── utils.less</span><br><span class="line">│       └── utils.test.js</span><br><span class="line">├── tests</span><br><span class="line">│   └── run-tests.js</span><br><span class="line">├── tsconfig.json</span><br><span class="line">├── usage.md</span><br><span class="line">└── yarn.lock</span><br></pre></td></tr></table></figure>
+
+<h4 id="2-前端分层架构"><a href="#2-前端分层架构" class="headerlink" title="2 前端分层架构"></a>2 前端分层架构</h4><p>前端分层架构图</p>
+<img src="http://cdn.nemoworks.info/devlog.nju-cvicse.cn/images/package.png">
+
+<ul>
+<li>Route Component: 路由组件，负责解析前端收到的url请求，ant-design-pro框架已提供</li>
+<li>Component: 页面组件，负责定义页面的渲染细节，由开发人员编写</li>
+<li>Model: 每个Model对应一个前端数据对象实体，包括数据，数据更新函数，与后台（Server）交互的中间件函数等</li>
+<li>Action: 描述了一个Model层方法和所需参数的js对象，action是改变State的唯一途径</li>
+<li>dispatch: 用于触发Action所需的函数</li>
+<li>State: 全部Model构成的集合</li>
+<li>connect: State和dispatch函数通过connect函数绑定到页面组件来为页面组件提供数据，并更新页面组件</li>
+</ul>
+<h3 id="代码说明"><a href="#代码说明" class="headerlink" title="代码说明"></a>代码说明</h3><h4 id="1-文件组织约定"><a href="#1-文件组织约定" class="headerlink" title="1 文件组织约定"></a>1 文件组织约定</h4><p>使用ant-design-pro框架，具体规约如下：</p>
+<ul>
+<li>routes：路由不进行额外配置，使用antdpro默认配置，pages下路径即路由</li>
+<li>pages：组织页面文件，按页面在pages下新建子目录，并在子目录下配置index.js作为页面入口，例如localhost:8080/template对应的页面是pages/template/index.js</li>
+<li>model：model层文件按照后台资源划分，例如存储文件资源的model可以命名为file.js</li>
+<li>css：css统一使用css文件，jsx页面使用的css与jsx相同命名并保存在同一目录下，例如index.jsx的css文件命名为index.css且与index.js在同一目录<h4 id="2-部分组件说明"><a href="#2-部分组件说明" class="headerlink" title="2 部分组件说明"></a>2 部分组件说明</h4></li>
+</ul>
+<ul>
+<li><p><a href="https://braft.margox.cn/" target="_blank" rel="noopener">Braft Editor</a></p>
+<ul>
+<li><p>这是一个基于<a href="https://draftjs.org/" target="_blank" rel="noopener">draft-js</a>的Web富文本编辑器，适用于React框架，其内部并不是直接使用HTML作为组件状态的，而是实现了一个EditorState类型，本质上是一个JS对象；</p>
+</li>
+<li><p>该编辑器支持value和onChange属性，这类似于React中原生的input组件，可以当做典型的受控组件的形式来使用；</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> React <span class="keyword">from</span> <span class="string">'react'</span></span><br><span class="line"><span class="comment">// 引入编辑器组件</span></span><br><span class="line"><span class="keyword">import</span> BraftEditor <span class="keyword">from</span> <span class="string">'braft-editor'</span></span><br><span class="line"><span class="comment">// 引入编辑器样式</span></span><br><span class="line"><span class="keyword">import</span> <span class="string">'braft-editor/dist/index.css'</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">export</span> <span class="keyword">default</span> <span class="class"><span class="keyword">class</span> <span class="title">EditorDemo</span> <span class="keyword">extends</span> <span class="title">React</span>.<span class="title">Component</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    state = &#123;</span><br><span class="line">        <span class="comment">// 创建一个空的editorState作为初始值</span></span><br><span class="line">        editorState: BraftEditor.createEditorState(<span class="literal">null</span>)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">async</span> componentDidMount () &#123;</span><br><span class="line">        <span class="comment">// 假设此处从服务端获取html格式的编辑器内容</span></span><br><span class="line">        <span class="keyword">const</span> htmlContent = <span class="keyword">await</span> fetchEditorContent()</span><br><span class="line">        <span class="comment">// 使用BraftEditor.createEditorState将html字符串转换为编辑器需要的editorStat</span></span><br><span class="line">        <span class="keyword">this</span>.setState(&#123;</span><br><span class="line">            editorState: BraftEditor.createEditorState(htmlContent)</span><br><span class="line">        &#125;)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    submitContent = <span class="keyword">async</span> () =&gt; &#123;</span><br><span class="line">        <span class="comment">// 在编辑器获得焦点时按下ctrl+s会执行此方法</span></span><br><span class="line">        <span class="comment">// 编辑器内容提交到服务端之前，可直接调用editorState.toHTML()来获取HTML格式的内容</span></span><br><span class="line">        <span class="keyword">const</span> htmlContent = <span class="keyword">this</span>.state.editorState.toHTML()</span><br><span class="line">        <span class="keyword">const</span> result = <span class="keyword">await</span> saveEditorContent(htmlContent)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    handleEditorChange = <span class="function">(<span class="params">editorState</span>) =&gt;</span> &#123;</span><br><span class="line">        <span class="keyword">this</span>.setState(&#123; editorState &#125;)</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    render () &#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">const</span> &#123; editorState &#125; = <span class="keyword">this</span>.state</span><br><span class="line">        <span class="keyword">return</span> (</span><br><span class="line">            &lt;div className=<span class="string">"my-component"</span>&gt;</span><br><span class="line">                &lt;BraftEditor</span><br><span class="line">                    value=&#123;editorState&#125;</span><br><span class="line">                    onChange=&#123;<span class="keyword">this</span>.handleEditorChange&#125;</span><br><span class="line">                    onSave=&#123;<span class="keyword">this</span>.submitContent&#125;</span><br><span class="line">                /&gt;</span><br><span class="line">            &lt;<span class="regexp">/div&gt;</span></span><br><span class="line"><span class="regexp">        )</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">    &#125;</span></span><br><span class="line"><span class="regexp"></span></span><br><span class="line"><span class="regexp">&#125;</span></span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li><p>value属性必须是一个editorState对象，可以使用<code>BraftEditor.createEditorState</code>方法来将JSON或者HTML格式的数据转换成editorState数据；</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 引入EditorState</span></span><br><span class="line"><span class="keyword">import</span> BraftEditor <span class="keyword">from</span> <span class="string">'braft-editor'</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 将raw格式的数据转换成editorState</span></span><br><span class="line"><span class="keyword">const</span> rawString = <span class="string">`&#123;"blocks":[&#123;"key":"9hu83","text":"Hello World!","type":"unstyled","depth":0,"inlineStyleRanges":[&#123;"offset":6,"length":5,"style":"BOLD"&#125;,&#123;"offset":6,"length":5,"style":"COLOR-F32784"&#125;],"entityRanges":[],"data":&#123;&#125;&#125;],"entityMap":&#123;&#125;&#125;`</span></span><br><span class="line"><span class="keyword">const</span> editorState = BraftEditor.createEditorState(rawString)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 将html字符串转换成editorState</span></span><br><span class="line"><span class="keyword">const</span> htmlString = <span class="string">`&lt;p&gt;Hello &lt;b&gt;World!&lt;/b&gt;&lt;/p&gt;`</span></span><br><span class="line"><span class="keyword">const</span> editorState2 = BraftEditor.createEditorState(htmlString)</span><br></pre></td></tr></table></figure>
+
+
+</li>
+</ul>
+<ul>
+<li><p><code>editorState.toRAW()</code>可以将editorState对象转化为JSON，用于持久化存储；<code>editorState.toHTML()</code>可以将editorState对象转化为HTML，用于展示或打印；</p>
+</li>
+<li><p>实际使用时请避免在onChange中直接toHTML，以下错误写法会导致光标回跳，或导致无限onChange；</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 错误示范！</span></span><br><span class="line">&lt;BraftEditor</span><br><span class="line">  value=&#123;BraftEditor.createEditorState(<span class="keyword">this</span>.state.value)&#125;</span><br><span class="line">  onChange=&#123;(editorState) =&gt; <span class="keyword">this</span>.setState(&#123; <span class="attr">value</span>: editorState.toHTML() &#125;)&#125;</span><br><span class="line">&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ul>
+<ul>
+<li>Json schema editor</li>
+</ul>
+<h3 id="开发案例"><a href="#开发案例" class="headerlink" title="开发案例"></a>开发案例</h3><h4 id="1-修改现有组件"><a href="#1-修改现有组件" class="headerlink" title="1 修改现有组件"></a>1 修改现有组件</h4><ul>
+<li>找到组件对应的源代码，高度可复用组件的js文件在<code>/src/component</code>目录下，页面组件的js文件在<code>/src/pages</code>目录下；</li>
+<li>以<code>/src/component/Perish/CustomIcon</code>为例，如果要修改组件样式，则在<code>CustomIcon.css</code>中在现有样式上进行修改，或者添加新的样式，并在<code>CustomIcon.js</code>中通过styles应用；如果要修改组件逻辑，则在<code>CustomIcon.js</code>中进行改动，涉及组件参数的改动，要在所有使用CustomIcon的地方进行对应的修改；</li>
+</ul>
+<h4 id="2-构建新的页面"><a href="#2-构建新的页面" class="headerlink" title="2 构建新的页面"></a>2 构建新的页面</h4><ul>
+<li>在前端目录<code>/src/pages</code>中为新页面命名一个文件夹，新页面组件相关的js、css文件都存放在该文件夹下，并且我们约定同一目录下与js文件同名的css文件负责配置前者的组件样式，例如<code>TemplateList/index.js</code>中的组件样式可以在<code>TemplateList/index.css</code>中进行配置；</li>
+<li>绘制好新页面的组件后，在<code>config/config.js</code>中为新页面配置路由；</li>
+<li>在<code>/src/model</code>中新增新页面的同名js文件，注意使用驼峰命名法，完成新页面涉及的model层数据处理部分，我们约定namespace和页面同名；</li>
+</ul>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Leasing/CD/">集成与持续发布</a>
+            
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Old Cao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a></span>
+    </div>
+</footer>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-145118419-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-145118419-1');
+</script>
+
+    </div>
+</body>
+</html>

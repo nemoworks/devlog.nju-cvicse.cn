@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head><meta name="generator" content="Hexo 3.9.0">
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+
+
+<title>项目进展 | 开发日志</title>
+
+
+
+    <link rel="icon" href="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/images/favicon.ico">
+
+
+
+
+    <!-- stylesheets list from _config.yml -->
+    
+    <link rel="stylesheet" href="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/css/style.css">
+    
+
+
+
+    <!-- scripts list from _config.yml -->
+    
+    <script src="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/js/script.js"></script>
+    
+    <script src="https://nemoworks.s3.cn-north-1.jdcloud-oss.com/dev.nju-cvicse.cn/js/tocbot.min.js"></script>
+    
+
+
+
+    
+    
+        
+    
+
+
+</head>
+<body>
+    <div class="wrapper">
+        <header>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-header header-logo"><a href="/">开发日志</a></div>
+            <div class="menu navbar-right">
+                
+                    <a class="menu-item" href="/categories/Leasing">租赁</a>
+                
+                    <a class="menu-item" href="/categories/Others">其他</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+
+        </div>
+    </nav>
+
+    
+    <nav class="navbar-mobile" id="nav-mobile">
+        <div class="container">
+            <div class="navbar-header">
+                <div>
+                    <a href="/">开发日志</a><a id="mobile-toggle-theme"></a>
+                </div>
+                <div class="menu-toggle" onclick="mobileBtn()">&#9776; Menu</div>
+            </div>
+            <div class="menu" id="mobile-menu">
+                
+                    <a class="menu-item" href="/categories/Leasing">租赁</a>
+                
+                    <a class="menu-item" href="/categories/Others">其他</a>
+                
+                    <a class="menu-item" href="/about">关于</a>
+                
+            </div>
+        </div>
+    </nav>
+
+</header>
+<script>
+    var mobileBtn = function f() {
+        var toggleMenu = document.getElementsByClassName("menu-toggle")[0];
+        var mobileMenu = document.getElementById("mobile-menu");
+        if(toggleMenu.classList.contains("active")){
+           toggleMenu.classList.remove("active")
+            mobileMenu.classList.remove("active")
+        }else{
+            toggleMenu.classList.add("active")
+            mobileMenu.classList.add("active")
+        }
+    }
+</script>
+        <div class="main">
+            <div class="container">
+    
+    
+        <div class="post-toc">
+    <div class="tocbot-list">
+    </div>
+    <div class="tocbot-list-menu">
+        <a class="tocbot-toc-expand" onclick="expand_toc()">Expand all</a>
+        <a onclick="go_top()">Back to top</a>
+        <a onclick="go_bottom()">Go to bottom</a>
+    </div>
+</div>
+
+<script>
+    document.ready(
+        function () {
+            tocbot.init({
+                tocSelector: '.tocbot-list',
+                contentSelector: '.post-content',
+                headingSelector: 'h1, h2, h3, h4, h5',
+                collapseDepth: 1,
+                orderedList: false,
+                scrollSmooth: true,
+            })
+        }
+    )
+
+    function expand_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 6,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "collapse_toc()");
+        b.innerHTML = "Collapse all"
+    }
+
+    function collapse_toc() {
+        var b = document.querySelector(".tocbot-toc-expand");
+        tocbot.init({
+            tocSelector: '.tocbot-list',
+            contentSelector: '.post-content',
+            headingSelector: 'h1, h2, h3, h4, h5',
+            collapseDepth: 1,
+            orderedList: false,
+            scrollSmooth: true,
+        });
+        b.setAttribute("onclick", "expand_toc()");
+        b.innerHTML = "Expand all"
+    }
+
+    function go_top() {
+        window.scrollTo(0, 0);
+    }
+
+    function go_bottom() {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
+
+</script>
+    
+
+    
+    <article class="post-wrap">
+        <header class="post-header">
+            <h1 class="post-title">项目进展</h1>
+            
+                <div class="post-meta">
+                    
+
+                    
+                        <span class="post-time">
+                        Date: <a href="#">September 24, 2019&nbsp;&nbsp;15:34:04</a>
+                        </span>
+                    
+                    
+                        <span class="post-category">
+                    Category:
+                            
+                                <a href="/categories/Leasing/">Leasing</a>
+                            
+                        </span>
+                    
+                </div>
+            
+        </header>
+
+        <div class="post-content">
+            <h3 id="项目进展记录"><a href="#项目进展记录" class="headerlink" title="项目进展记录"></a>项目进展记录</h3><h4 id="参与者"><a href="#参与者" class="headerlink" title="参与者"></a>参与者</h4><ul>
+<li>春葱</li>
+<li>ToMo</li>
+<li>预备役木匠</li>
+<li>五个菜</li>
+<li>微积分</li>
+</ul>
+<h4 id="2019-09-24"><a href="#2019-09-24" class="headerlink" title="2019-09-24"></a>2019-09-24</h4><ul>
+<li><p>租金计算表重构完成，在contract中初步加入了mobgodb查询接口（春葱）</p>
+</li>
+<li><p>拆分客户信息界面各个组件，完成组织树封装，并在后端做了相应调整（预备役木匠）</p>
+</li>
+<li><p>更新租赁物、组织的接口，重构了相关组件（ToMo）</p>
+</li>
+</ul>
+<h4 id="2019-09-25"><a href="#2019-09-25" class="headerlink" title="2019-09-25"></a>2019-09-25</h4><ul>
+<li>租金计算器bug修复，mongodb聚合搜索接口调试通过（春葱）</li>
+<li>路由配置、页面加载及json-schema-editor中的bug修复，拆分合同中的部分组件（ToMo）</li>
+<li>拆分组织信息页面各部分组件，形成了若干可复用组件，并在后端进行了相应的微调（预备役木匠）</li>
+</ul>
+<h4 id="2019-09-26"><a href="#2019-09-26" class="headerlink" title="2019-09-26"></a>2019-09-26</h4><ul>
+<li>重新设计租金计算表（春葱）</li>
+<li>修复了流程实例页面、合同模板异步更新和合同预览editor state的bug（ToMo）</li>
+<li>修复customInput默认输入值、合同编辑页面数据渲染的bug，优化调整后端客户管理的结构（预备役木匠）</li>
+</ul>
+<h4 id="2019-09-27"><a href="#2019-09-27" class="headerlink" title="2019-09-27"></a>2019-09-27</h4><ul>
+<li>修复了合同模板切换的bug，调整了部分页面的组件样式（ToMo）</li>
+<li>重构租金计算表的表结构，拆分计算模型（主要将一些元素如保证金等抽出数组，单独计算，使之能够支持分段计算需求）；修复计算模型中的遗留bug；初步重构输入元素格式，设计分段计算需求的具体service层实现（春葱）</li>
+<li>完成客户管理重构，进一步封装所需组件（预备役木匠）</li>
+</ul>
+<h4 id="2019-09-28"><a href="#2019-09-28" class="headerlink" title="2019-09-28"></a>2019-09-28</h4><ul>
+<li>讨论了分段计算模型的实现方案，今天赶课程作业明天加班补上进度（春葱）</li>
+<li>调整schema editor的内部结构，使自定义新类型可以完全通过外部配置实现，撰写部分开发文档（ToMo）</li>
+<li>实现minio的环境搭建，将前后端对接（预备役木匠）</li>
+</ul>
+<h4 id="2019-09-30"><a href="#2019-09-30" class="headerlink" title="2019-09-30"></a>2019-09-30</h4><ul>
+<li>租金计算表后端部分重构完成，schema和document初步重构（春葱）</li>
+<li>调整schema editor代码，使编辑器可以从schema definition中直接获取自定义schema（ToMo）</li>
+<li>修复租赁物管理部分bug（预备役木匠）</li>
+</ul>
+<h4 id="2019-10-8"><a href="#2019-10-8" class="headerlink" title="2019-10-8"></a>2019-10-8</h4><ul>
+<li>重构了高级组件的对应方式，修改了高级设置的扩展方式；修复了shcema类型切换的bug（ToMo）</li>
+<li>schema和document重构基本完成，进一步优化租金计算表（春葱）</li>
+</ul>
+<h4 id="2019-10-9"><a href="#2019-10-9" class="headerlink" title="2019-10-9"></a>2019-10-9</h4><ul>
+<li>租金计算表后端支持分段计算；document聚合查询初步重构（春葱）</li>
+<li>完成schema editor和form editor中自定义link类型的高级组件定制（ToMo）</li>
+</ul>
+<h4 id="2019-10-12"><a href="#2019-10-12" class="headerlink" title="2019-10-12"></a>2019-10-12</h4><ul>
+<li>实现租金计算表，完成流程引擎动态跳转功能（春葱）</li>
+<li>schema实现file基本类型（预备役木匠）</li>
+<li>schema editor解决context调用问题，实现定制化完全由外部传入；用data sheet初步实现图标功能（ToMo）</li>
+</ul>
+<h4 id="2019-10-20-过去一周讨论了项目组件打包、重构的基本问题"><a href="#2019-10-20-过去一周讨论了项目组件打包、重构的基本问题" class="headerlink" title="2019-10-20(过去一周讨论了项目组件打包、重构的基本问题)"></a>2019-10-20(过去一周讨论了项目组件打包、重构的基本问题)</h4><ul>
+<li>前端工程json-schema-editor打包完成（预备役木匠）</li>
+<li>根据需求修改租金表页面部分内容（春葱）</li>
+<li>实现data sheet部分（ToMo）</li>
+<li>实现前端租金表页面表项搭建（五个菜）</li>
+</ul>
+<h4 id="2019-10-24"><a href="#2019-10-24" class="headerlink" title="2019-10-24"></a>2019-10-24</h4><ul>
+<li>前端工程schema-editor和form-editor打包完成，部分bug修复（预备役木匠）</li>
+<li>重构form-editor，尝试使用antd组件替换原有结构，帮助调试重构的项目（ToMo）</li>
+<li>使用前端打包好的组件重新构建一个基础工程，schema部分调试成功（微积分）</li>
+<li>后段工程打包成pom文件，调试并修复了jaVers版本控制的bug（春葱）</li>
+</ul>
+<h4 id="2019-10-25-和工作人员开会讨论"><a href="#2019-10-25-和工作人员开会讨论" class="headerlink" title="2019-10-25(和工作人员开会讨论)"></a>2019-10-25(和工作人员开会讨论)</h4><ul>
+<li>交接当前组件封装的思想及实现，演示重新构建的demo（微积分）</li>
+<li>讲解后端工程中的collections定义及使用、关联查询的实现原理；介绍maven私服的具体操作，maven以来的生成和引用，具体通过demo形式展现；介绍了租金计算器的相关内容（春葱）</li>
+<li>帮助使用当前组件复现一部分基本功能；重构form部分组件，优化细节项（ToMo、预备役木匠）</li>
+</ul>
+<h4 id="2019-11-2"><a href="#2019-11-2" class="headerlink" title="2019-11-2"></a>2019-11-2</h4><ul>
+<li>重构demo工程，用dictionary体现advanced-settings，extensions，options作为输入参数的思想（微积分）</li>
+<li>使用重新打包的前端组件和后台完成查询功能（春葱、预备役木匠）</li>
+</ul>
+<h4 id="2019-11-6"><a href="#2019-11-6" class="headerlink" title="2019-11-6"></a>2019-11-6</h4><ul>
+<li>重构definitions的设计，使用js设计使得definitions中可以包含组件配置与渲染方式（微积分）</li>
+<li>对应definitions的设计修改schema组件的输入方式（预备役木匠）</li>
+<li>完善查询组件，可以通过多个组件配合实现schema的查询操作（春葱、预备役木匠）</li>
+</ul>
+<p>待补充..</p>
+
+        </div>
+
+        
+        <section class="post-tags">
+            <div>
+                <span>Tag(s):</span>
+                <span class="tag">
+                    
+                </span>
+            </div>
+            <div>
+                <a href="javascript:window.history.back();">back</a>
+                <span>· </span>
+                <a href="/">home</a>
+            </div>
+        </section>
+        <section class="post-nav">
+            
+                <a class="prev" rel="prev" href="/Leasing/Devlog/">开发文档</a>
+            
+            
+            <a class="next" rel="next" href="/Leasing/Development/">开发模式</a>
+            
+        </section>
+
+
+    </article>
+</div>
+
+        </div>
+        <footer id="footer" class="footer">
+    <div class="copyright">
+        <span>© Old Cao | Powered by <a href="https://hexo.io" target="_blank">Hexo</a></span>
+    </div>
+</footer>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-145118419-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-145118419-1');
+</script>
+
+    </div>
+</body>
+</html>
