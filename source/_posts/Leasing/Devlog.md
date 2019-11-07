@@ -75,7 +75,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 {% qnimg customer_contract.png %}
 
-- 扩展定义（schema扩展方法，注意说明关联属性定义）
+- 扩展定义
 
 通过Json Schema Definitions定制若干种数据类型
 
@@ -84,11 +84,12 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 也可对应租赁起止日期设计类型：date，通过设置format来使其符合日期定义
 
 ```json
-{//本文件名为：definitions.json
+{
   "definitions": {
     //...
     "link": {
       "type": "link",
+      "customized": "link"
     },
     "leaseType": {
       "type": "object",
@@ -109,66 +110,75 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 }
 ```
 
-引用同一目录下另一个json文件中的定义，可以有如下写法：
+其中link属于一项关联属性，用以实现级联查询操作（如从contract的schema中获取到对应的客户信息）
 
-{% qnimg ref_definitions.png %}
+- 前端界面（schema editor部分）
 
-根据schema可以引用需要用到的各项属性，对应可修改上述contract schema为：
+Schema editor直接使用我们打包好的组件，包含两个参数以供传入
 
-```json
-{//本文件名为contract_1.json
-  "title": "Contract_Schema_1",
-  "description": "A Sample of Contract Schema",
-  "type": "object",
-  
-  "properties": {
-    "linkList": {
-      "type": "array",
-      "items": {"$ref": "definitions.json#/definitions/link"}
-    },
-    "leases": {
-      "type": "array",
-      "items": {"$ref": "definitions.json#/definitions/leaseType"}
-    },
-    "startDate": {"$ref": "definitions.json#/definitions/date"},
-    "endDate": {"$ref": "definitions.json#/definitions/date"}
-  }
+其中data是当前schema的内容，extensions是各个definition的定义
+
+以上述合同schema为例，definitions的定义有如下几步：
+
+1. 选取一个类型（下例中为link）写成js文件
+
+```jsx
+const linkDef = {
+    "link": {
+        "customized": "link",
+        "type": "link",
+        "component": CustomizedSchemaLink
+    }
 }
 ```
 
-参考文档：
+2. 为该类型添加component属性，即advacned settings，这部分在下面一小节作出说明
 
-[json_schema_complex_structure](https://json-schema.org/understanding-json-schema/structuring.html)
+```jsx
+import CustomizedSchemaLink from '../SchemaComponents/SchemaLink'
+const LinkDef = {
+    "link": {
+        "customized": "link",
+        "type": "link",
+        "component": CustomizedSchemaLink,
+    }
+}
+```
 
-示例json代码：
+3. 对所有类型都执行上述操作，最后合并所有类型成为一个综合的definitions
 
-[code_example](https://github.com/NovelistChan/LeasingExamples)
+```jsx
+import dateDef from '@/components/SchemaDate/Definition/date'
+import leaseTypeDef from '@/components/SchemaLeaseType/Definition/leaseType'
+import linkDef from '@/components/SchemaLink/Definition/link'
 
-- 前端界面（schema editor部分）
+const { date } = dateDef
+const { leaseType } = leaseTypeDef
+const { link } = linkDef
+
+const definitions = {
+    date,
+    leaseType,
+    link
+}
+```
 
 用户可以通过schema editor来构建合同的schema，这个schema在用户建立表单form时可供选择
 
 ``` jsx
-import React from 'react';
-/* 引入schema编辑器 */
-import schemaEditor from '@/components/JsonSchema/index.js';
-/* 引入自定义类型 */
-import { definitions } from './definitions.json';
-/* schema editor的配置属性 */
-const config = {
-  defaultSchema: {
-    ...definitions
-  }
-};
-const SchemaEditor = schemaEditor(config);
+import SchemaEditor from 'json-schema-editor-visual-lab'
 
-class TemplateEditor extends React.Component {
+const definitions = {
   //...
-	render() {
+}
+
+class App extends React.Component {
+  render() {
     return (
       //...
-      <SchemaEditor />
-			//...
+      <SchemaEditor data={this.state.schema}
+        extensions = {definitions}
+        />
     )
   }
 }
@@ -178,29 +188,49 @@ class TemplateEditor extends React.Component {
 
 {% qnimg schema_editor.png %}
 
+示例代码：
+
+[前端示例](https://github.com/nemoworks/sddm-frontend)
+
 - 高级组件（advanced setting部分）
 
 用户构建schema时，实际上是通过将各种组件拼合在一起的方式来创建的
 
-高级组件式的用户可以对其中的特殊类型进行扩展
+高级组件使得用户可以对其中的特殊类型进行扩展
 
-定制某种类型的advanced settings，然后在其与先前schema中创建的对应字段之间建立映射
+定制某种类型的advanced settings，实际上是实现一个自行定制的组件，然后通过defintions的component属性传入editor，使得该advanced settings与自己的对应特殊类型相关联
+
+在打包好的schema editor内部，会检查当前传入的definitions是否在内置的基础类型上有扩展，若有则会采用传入的参数对类型列表进行更新，并使用对应的advanced settings
+
+原有类型Map：
 
 ```jsx
-/* @/components/JsonSchema/components/SchemaComponents/SchemaOther.js */
-//...
-/* 所有自定义类型的advanced settings定制都通过advancedTemplate添加到JsonSchemaEditor中 */
-const advancedTemplate = data => (new Map([
-  /* 自定义类型名称以及对应的advanced settings中的组件 */
-  ['link', (<CustomizedSchemaLink data={data} />)],
-  ['leaseType', (<CustomizedSchemaLease data={data} />)],
-]).get(data.customized||data.type))
-//...
+export const mapping = data => ({
+  string: <CustomizedSchemaString data={data} />,
+  number: <CustomizedSchemaNumber data={data} />,
+  boolean: <CustomizedSchemaBoolean data={data} />,
+  integer: <CustomizedSchemaNumber data={data} />,
+  array: <CustomizedSchemaArray data={data} />,
+  object: <CustomizedSchemaObject data={data} />,
+}[data.type]);
 ```
+
+当传入definitions之后，该Map有如下更新：
+
+```jsx
+export const mapping = data => ({
+  //...(原有类型)
+  link: <CustomizedSchemaLink data={data} />,
+  leaseType: <CustomizedSchemaLeaseType data={data} />,
+  date: <CustomizedSchemaDate data={data} />,
+}[data.type]);
+```
+
+由此组件实现了不同类型的定制及高级配置
 
 如下是对link类型的高级设置的定制：
 
-```javascript
+```jsx
 /* @/components/JsonSchema/components/SchemaComponents/SchemaLink.js */
 import React from 'react'
 import { Cascader, Row, Col, Input, Button } from 'antd'

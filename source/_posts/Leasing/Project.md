@@ -92,4 +92,10 @@ date: 2019-09-24 15:34:04
 - 重构demo工程，用dictionary体现advanced-settings，extensions，options作为输入参数的思想（微积分）
 - 使用重新打包的前端组件和后台完成查询功能（春葱、预备役木匠）
 
+#### 2019-11-6
+
+- 重构definitions的设计，使用js设计使得definitions中可以包含组件配置与渲染方式（微积分）
+- 对应definitions的设计修改schema组件的输入方式（预备役木匠）
+- 完善查询组件，可以通过多个组件配合实现schema的查询操作（春葱、预备役木匠）
+
 待补充..
