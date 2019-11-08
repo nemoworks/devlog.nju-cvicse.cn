@@ -246,6 +246,8 @@ export const mapping = data => ({
 
 由此组件实现了不同类型的定制及高级配置
 
+Advanced settings中的props包含的data与context两个参数，其中data表示该块schema，context是上下文，可提供将当前所填内容写回整个schema的功能
+
 如下是对link类型的高级设置的定制：
 
 ```jsx
@@ -362,6 +364,8 @@ export default connect(mapStateToProps)(CustomizedSchemaLink)
 选择好对应的document后的效果：
 
 {% qnimg link_advancedsettings_selected.png %}
+
+
 
 - 后台接口（schema管理接口）
 
