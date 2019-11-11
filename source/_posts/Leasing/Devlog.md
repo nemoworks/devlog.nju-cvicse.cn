@@ -112,6 +112,21 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 其中link属于一项关联属性，用以实现级联查询操作（如从contract的schema中获取到对应的客户信息）
 
+link的content可以是一整个文档，也可以是一个表示uri的字符串链接，后台通过检索该链接获取到对应的文档信息
+
+一个具体的例子如下（该link在contract schema中指示创建该合同的客户信息）：
+
+```json
+{
+  "link": {
+    "type": "link",
+    "discription": "customer of this contract",
+    "method": { "enum": { ["value", "address"] } },
+    "content": //链接或者文档
+  }
+}
+```
+
 - 前端界面（schema editor部分）
 
 Schema editor直接使用我们打包好的组件，包含以下三个可选参数
