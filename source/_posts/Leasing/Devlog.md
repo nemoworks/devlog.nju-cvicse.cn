@@ -121,7 +121,7 @@ link的content可以是一整个文档，也可以是某一个文档的外键，
   "link": {
     "type": "link",
     "discription": "...",
-    "method": { "enum": { ["value", "key"] } },
+    "by": { "enum": { ["value", "reference"] } },
     "content": //链接或者文档
   }
 }
@@ -134,8 +134,8 @@ link的content可以是一整个文档，也可以是某一个文档的外键，
   "link": {
     "type": "link",
     "name": "linkA",
-    "discription": "link to B by key"
-    "by": "key",
+    "discription": "link to B by reference"
+    "by": "reference",
     "content": "collection1/B.id" //外键为B的id
   }
 }
