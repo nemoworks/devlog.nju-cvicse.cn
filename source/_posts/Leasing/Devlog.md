@@ -112,16 +112,16 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 其中link属于一项关联属性，用以实现级联查询操作（如从contract的schema中获取到对应的客户信息）
 
-link的content可以是一整个文档，也可以是一个表示uri的字符串链接（如collection1/B表示从collection1中选取到B文档），后台通过检索该链接获取到对应的文档信息
+link的content可以是一整个文档，也可以是某一个文档的外键，后台通过检索该外键获取到对应的文档信息
 
 使用时可参照如下格式：
 
-```json
+```jsx
 {
   "link": {
     "type": "link",
     "discription": "...",
-    "method": { "enum": { ["value", "address"] } },
+    "method": { "enum": { ["value", "key"] } },
     "content": //链接或者文档
   }
 }
@@ -134,18 +134,18 @@ link的content可以是一整个文档，也可以是一个表示uri的字符串
   "link": {
     "type": "link",
     "name": "linkA",
-    "discription": "link to B by address"
-    "method": "address",
-    "content": "collection1/B"
+    "discription": "link to B by key"
+    "by": "key",
+    "content": "collection1/B.id" //外键为B的id
   }
 }
 
 {//B.linkList.linkB
   "link": {
-   	"type": "link",
+    "type": "link",
     "name": "linkB",
     "discription": "link to C by value",
-    "method": "value",
+    "by": "value",
     "content": C 	//代表文档C的字符串
   }
 }
