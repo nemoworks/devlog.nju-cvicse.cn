@@ -224,17 +224,13 @@ const extensions = {
 ``` jsx
 import SchemaEditor from 'json-schema-editor-visual-lab'
 
-const definitions = {
-  //...
-}
-
 class App extends React.Component {
   render() {
     return (
       //...
       <SchemaEditor data = {this.state.schema}
-        onChange = {schema => console.log(schema)}
-        extensions = {definitions}
+        onChange = {schema => this.props.dispatch({ type: "schema/setState", schema })}
+        extensions = {extensions}
         />
     )
   }
@@ -269,6 +265,7 @@ export const mapping = data => ({
   integer: <CustomizedSchemaNumber data={data} />,
   array: <CustomizedSchemaArray data={data} />,
   object: <CustomizedSchemaObject data={data} />,
+  arrayTable: <CustomizedSchemaArrayTable data={data} />
 }[data.type]);
 ```
 
@@ -658,9 +655,15 @@ public JSONArray getSchemaWithCommitId(@PathVariable String id, @RequestParam(va
 
 {% qnimg form_editor.png %}
 
-- 高级组件（advanced component部分）
+- 高级组件（渲染方式）
 
 针对不同的待填项，可以设置其属性（包括填写类型，填写方式，对所填项的各种要求等）对应这些项在表单中的渲染方式，这些组件均由用户自定义，构成最终需要生成的表单
+
+form使用时需要传入两个参数，其中
+
+schema：对应当前所选中的schema
+
+extensions：包含fields（即需要渲染成的样式）和default（定制类型的默认值）
 
 ```jsx
 import date from '@/components/Date/index'
@@ -668,16 +671,26 @@ import leaseType from '@/components/LeaseType/index'
 import link from '@/components/Link/index'
 
 const extensionsForm = {
-    date: date.field,
-    leaseType: leaseType.field,
-    link: link.field
+    "date": date.field,
+    "leaseType": leaseType.field,
+    "link": link.field
+}
+
+const extensionsDefault = {
+    "date": _ => "2000-1-1",
+    "leaseType": _ => ({
+        "kind": "ship",
+        "amount": "1",
+        "size": "large"
+    }),
+    "link": _ => "CUSA/CashFlow"
 }
 
 render() {
   return (
     // ...
     <Form schema={JSON.parse(this.state.schema)}
-      extensions={extensionsForm}
+      extensions={{fields: extensionsForm, default: extensionsDefault}}
       />
   )
 }
