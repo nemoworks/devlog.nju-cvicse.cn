@@ -112,4 +112,8 @@ date: 2019-09-24 15:34:04
 
 - 实现了一个使用antd渲染的新版本form组件；修复了editor组件不能保存、不能查看基础advanced settings的bug（微积分）
 
+#### 2019-12-01
+
+- 更新link组件的渲染方式，修复新添加组件不能正确返回填写信息的bug；修复后端document的toString()方法存在的bug；添加Document部分的CURD，实现三种搜索功能；发布最新版本到云端；（微积分）
+
 待补充..
