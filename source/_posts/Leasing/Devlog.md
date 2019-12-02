@@ -41,15 +41,13 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
       "items": {
         "type": "link"
       }
-    },//linkList存储一系列编号，包括客户编号、资金流编号等，作外键使用
-    "leases": {
-      "type": "array",
-      "items": {
-        "type": "leaseType"
-      }
-    },//待租物品，定制类型leaseType
-    "startDate": {"type": "date"},
-    "endDate": {"type": "date"}//租赁起止日期，类型为date
+    },//linkList存储一系列编号，包括客户编号、工作人员编号等，作用等同于外键
+    "product": {
+      //...
+      //产品列表，使用了自定义的ArrayTable类型，设置了name、amount、price三个条目以供填写
+    }
+    "startDate": { "type": "date"},
+    "endDate": { "type": "date"}//租赁起止日期，类型为date
     //...可按需求添加其余字段及类型
   }
 }
@@ -64,8 +62,9 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
   "type": "object",
   
   "properties": {
-    "id": {"type": "string"},
-    "name": {"type": "string"},
+    "customer_id": { "type": "string" },
+    "name": { "type": "string" },
+    "age": { "type": "interger" }
     //...
   }
 }
@@ -73,7 +72,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 二者之间的关系可由如下类图表示：
 
-{% qnimg customer_contract.png %}
+{% qnimg relation.png %}
 
 - 扩展定义
 
@@ -91,15 +90,28 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
       "type": "link",
       "customized": "link"
     },
-    "leaseType": {
-      "type": "object",
-      "customized": "leaseType",
-      "properties": {
-        "kind": { "type": { "enum": ["ship", "truck"]}},
-        "amount": {"type": "number"},
-        "size": { "type": { "enum": ["little", "medium", "large"]}}
+    "product": {
+      "type": "arrayTable",
+      "columns": {
+        "name": {
+          "title": "物品名",
+          "content": {
+            "type": "string"
+          }
+        },
+        "amount": {
+          "title": "数量(个)",
+          "content": {
+            "type": "integer"
+          }
+        },
+        "price": {
+          "title": "单价(万元)",
+          "content": {
+            "type": "number"
+          }
+        }
       },
-      "required": ["kind", "amount", "size"]
     },
     "date": {
       "type": "string",
