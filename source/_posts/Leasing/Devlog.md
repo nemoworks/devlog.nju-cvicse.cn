@@ -473,7 +473,7 @@ public interface SchemaRepository extends MongoRepository<Schema,String> {
 
 在创建schema时，JaVers会对应生成初始版本记录，记录效果如下图：
 
-{% qnimg schema_javers.png %}
+{% qnimg javers_schema.png %}
 
 #### 删除schema
 
