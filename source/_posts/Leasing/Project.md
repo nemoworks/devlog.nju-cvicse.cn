@@ -116,4 +116,9 @@ date: 2019-09-24 15:34:04
 
 - 更新link组件的渲染方式，修复新添加组件不能正确返回填写信息的bug；修复后端document的toString()方法存在的bug；添加Document部分的CURD，实现三种搜索功能；发布最新版本到云端；（微积分）
 
+#### 2019-12-05
+
+- 后端添加获取所有collection以及单个collection内所有元素的两个接口（春葱）
+- 修改link类型的实现，分为value和reference两种场景（微积分）
+
 待补充..

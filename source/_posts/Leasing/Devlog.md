@@ -7,7 +7,7 @@ date: 2019-09-25 23:36:15
 
 ### 总体架构
 
-本项目旨在实现一个可在线处理租赁业务的原型系统，其特点在于合同的在线编辑，业务中涉及所有数据对象的高度可配置以及配置过程的零编码。为了实现这个特点，我们设计了不同于传统Web项目的开发模式。
+本项目旨在实现一个可在线处理租赁业务的原型系统，其特点在于订单的在线编辑，业务中涉及所有数据对象的高度可配置以及配置过程的零编码。为了实现这个特点，我们设计了不同于传统Web项目的开发模式。
 
 {% qnimg devpattern.png %}
 
@@ -27,12 +27,12 @@ date: 2019-09-25 23:36:15
 
 Json Schema定义了一套词汇和规则，用来定义Json元数据。这些元数据定义给出了Json数据需要满足的各项规范（成员、结构、类型等）。
 
-以一个合同的schema框架为例，可能的设计如下：
+以一份订单的schema框架为例，可能的设计如下：
 
 ``` json
 {
-  "title": "Contract_Schema_1",
-  "description": "A Sample of Contract Schema",
+  "title": "Order_Schema_1",
+  "description": "A Sample of Order Schema",
   "type": "object",
   
   "properties": {
@@ -46,8 +46,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
       //...
       //产品列表，使用了自定义的ArrayTable类型，设置了name、amount、price三个条目以供填写
     }
-    "startDate": { "type": "date"},
-    "endDate": { "type": "date"}//租赁起止日期，类型为date
+    "requireDate": { "type": "date"},//订单交付日期，类型为date
     //...可按需求添加其余字段及类型
   }
 }
@@ -64,7 +63,7 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
   "properties": {
     "customer_id": { "type": "string" },
     "name": { "type": "string" },
-    "age": { "type": "interger" }
+    "age": { "type": "integer" }
     //...
   }
 }
@@ -72,13 +71,13 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
 
 二者之间的关系可由如下类图表示：
 
-{% qnimg relation.png %}
+{% qnimg order_customer.png %}
 
 - 扩展定义
 
 通过Json Schema Definitions定制若干种数据类型
 
-以上述合同的schema为例，根据客户所需待租物品的不同，可以设计自定义类型leaseType，指定待租物品的种类、数量、大小等属性
+以上述订单的schema为例，根据客户所需待租物品的不同，可以设计自定义类型leaseType，指定待租物品的种类、数量、大小等属性
 
 也可对应租赁起止日期设计类型：date，通过设置format来使其符合日期定义
 
@@ -88,7 +87,6 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
     //...
     "link": {
       "type": "link",
-      "customized": "link"
     },
     "product": {
       "type": "arrayTable",
@@ -115,16 +113,15 @@ Json Schema定义了一套词汇和规则，用来定义Json元数据。这些�
     },
     "date": {
       "type": "string",
-      "customized": "date",
       "format": "date"
     }
   }
 }
 ```
 
-其中link属于一项关联属性，用以实现级联查询操作（如从contract的schema中获取到对应的客户信息）
+其中link属于一项关联属性，用以实现级联查询操作（如从order的schema中获取到对应的客户信息）
 
-link的content可以是一整个文档，也可以是某一个文档的外键，后台通过检索该外键获取到对应的文档信息
+link类型最终在表单中填充的内容可以是一整个文档，也可以是某一个文档的外键，后台通过检索该外键获取到对应的文档信息
 
 使用时可参照如下格式：
 
@@ -133,45 +130,43 @@ link的content可以是一整个文档，也可以是某一个文档的外键，
   "link": {
     "type": "link",
     "discription": "...",
-    "by": { "enum": { ["value", "reference"] } },
-    "content": //链接或者文档
+    "linkBy": { "enum": { ["value", "reference"] } },
+    "toFile": ["CollectionName", "id"] //通过CollectionName和id来表示链接到某个文件
   }
 }
 ```
 
-一个具体的多层级联查询所用到的link如下（以存在的A、B、C三个文档为例，在A文档中写下如下linkA，在B文档中写下linkB，可通过向后端传字符串A.linkA.linkB来访问到文档C，此处的字符串格式可自定义，由后台的处理方法决定）：
+一个具体的多层级联查询所用到的link如下（以存在的A、B、C三个文档为例，其中已知B属于Collection1，C属于Collection2，在A文档中写下如下linkA，在B文档中写下linkB，可通过向后端传字符串A.linkA.linkB来访问到文档C，此处的字符串格式可自定义，由后台的处理方法决定）：
 
 ```jsx
-{//A.linkList.linkA
-  "link": {
+{//A.linkList.linkA对应的link设置
+  "linkA": {
     "type": "link",
-    "name": "linkA",
     "discription": "link to B by reference"
-    "by": "reference",
-    "content": "collection1/B.id" //外键为B的id
+    "linkBy": "reference",
+    "toFile": ["Collection1", "B.id"]
   }
 }
 
 {//B.linkList.linkB
-  "link": {
+  "linkB": {
     "type": "link",
-    "name": "linkB",
     "discription": "link to C by value",
-    "by": "value",
-    "content": C 	//代表文档C的字符串
+    "linkBy": "value",
+    "toFile": ["Collection2", "C.id"]
   }
 }
 ```
 
 - 前端界面（schema editor部分）
 
-Schema editor直接使用我们打包好的组件，包含以下三个可选参数
+Schema Editor直接使用我们打包好的组件，包含以下三个可选参数
 
 - data：当前schema的源文本
 - onChange：editor更改事件处理方法 注：暂时不支持onChange方法中调用setState** 
 - extensions：各个definition的定义
 
-以上述合同schema为例，definitions的定义有如下几步：
+以上述订单schema为例，definitions的定义有如下几步：
 
 1. 选取一个类型（下例中为link）写成js文件
 
@@ -179,8 +174,9 @@ Schema editor直接使用我们打包好的组件，包含以下三个可选参�
 // '@/components/Link/schema.js'
 const linkDef = {
     "link": {
-        "customized": "link",
-        "type": "link"
+        "type": "link",
+      	"linkBy": "default",
+      	"toFile": ["CollectionName", "id"]
     }
 }
 ```
@@ -194,12 +190,19 @@ class CustomizedSchemaLink extends React.Component {
 }
 ```
 
-3. 为该类型添加定制渲染方式，即Form表单的显示样式，这部分在documents中给予说明
+3. 为该类型添加定制渲染方式和默认渲染值，即Form表单的显示样式，这部分在documents中给予说明
 
 ```jsx
 // '@/components/Link/field.js'
 export default function LinkField(props) {
  		// ... 
+}
+
+// '@/components/Link/default.js'
+export default function linkDefault(props) {
+  return (
+    _ => " "
+  )
 }
 ```
 
@@ -210,11 +213,13 @@ export default function LinkField(props) {
 import field from './field'
 import template from './template'
 import schema from './schema'
+import fieldDefault from './default'
 
 export default {
     field,
     template,
-    schema
+    schema,
+    fieldDefault
 }
 ```
 
@@ -222,16 +227,14 @@ export default {
 
 ```jsx
 import date from '@/components/Date/index'
-import leaseType from '@/components/LeaseType/index'
 import link from '@/components/Link/index'
 const extensions = {
     date,
-    leaseType,
     link
 }
 ```
 
-用户可以通过schema editor来构建合同的schema，这个schema在用户建立表单form时可供选择
+用户可以通过schema editor来构建订单的schema，这个schema在用户建立表单form时可供选择
 
 ``` jsx
 import SchemaEditor from 'json-schema-editor-visual-lab'
@@ -249,13 +252,13 @@ class App extends React.Component {
 }
 ```
 
-使用schema editor构建上述contract schema，如下例：
+使用schema editor构建上述order schema，如下例：
 
-{% qnimg schema_editor.png %}
+{% qnimg schema_order.png %}
 
 示例代码：
 
-[前端示例](https://github.com/nemoworks/sddm-frontend)
+[前端示例](https://github.com/nemoworks/sddm-frontend/rebuildv2)
 
 - 高级组件（advanced setting部分）
 
@@ -287,7 +290,6 @@ export const mapping = data => ({
 export const mapping = data => ({
   //...(原有类型)
   link: <CustomizedSchemaLink data={data} />,
-  leaseType: <CustomizedSchemaLeaseType data={data} />,
   date: <CustomizedSchemaDate data={data} />,
 }[data.type]);
 ```
@@ -296,122 +298,123 @@ export const mapping = data => ({
 
 Advanced settings中的props包含的data与context两个参数，其中data表示该块schema，context是上下文，可提供将当前所填内容写回整个schema的功能
 
-如下是对link类型的高级设置的定制：
+如下是对link类型的高级设置的定制，效果是添加了两个选择框，以供选择linkBy属性和toFile属性：
 
 ```jsx
-/* @/components/JsonSchema/components/SchemaComponents/SchemaLink.js */
+// '@/components/Link/template.js'
 import React from 'react'
-import { Cascader, Row, Col, Input, Button } from 'antd'
+import { Cascader, Row, Col, Input, Button, Select } from 'antd'
 import PropTypes from 'prop-types';
-import LocalProvider from '../LocalProvider/index.js';
 import { connect } from 'dva'
+import request from '@/utils/request'
 
-const mapStateToProps = state => ({
-  link: state['jsonSchema-link']
-})
+export default class CustomizedSchemaLink extends React.Component {
+  changeOtherValue = (value, name, data) => {
+    data[name] = value;
+    this.context.changeCustomValue(data);
+  };
 
-class CustomizedSchemaLink extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      collections: null,
+      options: [],
+      doclist: null
+    }
+  }
+
+  componentDidMount() {
+    this.getCustomers()
+    this.getOrders()
+    this.getEmployees()
+    request.get("/api/collections")
+      .then(response => {
+        this.setState({ collections: response })
+        var list = response
+        list.splice(0, 1)
+        this.setState({
+          options:
+            list.map(
+              item => ({
+                value: item,
+                label: item,
+                isLeaf: false
+              })
+            )
+        })
+      })
+      .catch(err => console.log(err))
+  }
 
   render() {
-    const { data, dispatch } = this.props;
-    console.log(this.state.options)
+    const { data, context } = this.props;
     return (
       <div>
-        <div className="default-setting">{LocalProvider('base_setting')}</div>
         <Row className="other-row" type="flex" align="middle">
           <Col span={4} className="other-label">
-            {LocalProvider('link')}：
+            {'linkBy'}：
           </Col>
           <Col span={20}>
-            /* link类型advanced settings组件的核心是一个级联选择框 */
-            <Cascader placeholder="please select customer schema and document" style={{ width: '100%' }}
-              options={this.state.options}//动态选项
-              onChange={selectedOptions => {
-                /* 将选中的key和val写回当前的schema中 */
-                console.log(selectedOptions)
-                this.changeOtherValue(selectedOptions[0], "key", data)
-                this.changeOtherValue(selectedOptions[2], "val", data)
-              }} loadData={this.loadData} changeOnSelect >
+            <Select placeholder="select link method" style={{ width: 240 }} onChange={(e) => {
+              this.changeOtherValue(e, 'linkBy', data, this.context.changeCustomValue)
+            }
+            }>
+              <Option value="reference">reference</Option>
+              <Option value="value">value</Option>
+            </Select>
+          </Col>
+        </Row>
+        <Row className="other-row" type="flex" align="middle">
+          <Col span={4} className="other-label">
+            {'toFile'}：
+          </Col>
+          <Col span={20}>
+            <Cascader placeholder="select related File" style={{ width: 240 }}
+              options={this.state.options}
+              onChange={(e) => {
+                this.changeOtherValue(e, 'toFile', data, this.context.changeCustomValue)
+              }
+              }
+              loadData={selectedOptions => {
+                const targetOption = selectedOptions[selectedOptions.length - 1]
+                targetOption.loading = false
+                var i
+                for (i in this.state.options) {
+                  if (selectedOptions[0].value == this.state.options[i].value) {
+                    var name = selectedOptions[0].value
+                    request.get(`/api/documents?collectionName=${name}`)
+                      .then(response => {
+                        this.setState({ doclist: response })
+                        targetOption.children = this.state.doclist.map(
+                          item => ({
+                            value: item.id,
+                            label: item.id,
+                            isLeaf: true
+                          }))
+                        this.setState({ options: [...this.state.options] })
+                      })
+                      .catch(err => console.log(err))
+                  }
+                }   
+              }
+              }
+              changeOnSelect
+            >
             </Cascader>
           </Col>
         </Row>
       </div>
     );
   }
-
-  state = {
-    options: []
-  }
-
-	/* 回写schema方法 */
-  changeOtherValue = (value, name, data) => {
-    data[name] = value;
-    this.context.changeCustomValue(data);
-  };
-
-	componentDidMount() {
-    /* 渲染第一层可选项 */
-    this.props.dispatch({
-      type: 'jsonSchema-link/getCollectionList',
-      callback: collectionList => {
-        const options = collectionList.map(item => ({ value: item, label: item, isLeaf: false }))
-        this.setState({ options })
-      }
-    })
-  }
-
-	/* 级联选择动态加载数据 */
-  loadData = selectedOptions => {
-    /* 渲染第二层可选项，向后台请求符合要求的所有schema */
-    if (selectedOptions.length === 1) {
-      const targetOption = selectedOptions[selectedOptions.length - 1];
-      targetOption.loading = true;
-      /* 向后台请求collection为key的schema */
-      this.props.dispatch({
-        type: 'jsonSchema-link/getSchemaList',
-        key: targetOption.value,
-        callback: schemaList => {
-          targetOption.loading = false;
-          targetOption.children = schemaList.map(item => ({ value: item.id, label: item.name, isLeaf: false }))
-          this.setState({
-            options: [...this.state.options],
-          });
-        }
-      })
-    }
-    /* 渲染第三层可选项，向后台请求符合要求的所有document */
-    if (selectedOptions.length === 2) {
-      const targetOption = selectedOptions[selectedOptions.length - 1];
-      targetOption.loading = true;
-      /* 根据选中的schemaId向后台请求相关的document */
-      this.props.dispatch({
-        type: 'jsonSchema-link/getDocumentListBySchemaId',
-        id: targetOption.value,
-        callback: documentList => {
-          targetOption.loading = false;
-          targetOption.children = documentList.map(item => ({ value: item.id, label: item.name }))
-          this.setState({
-            options: [...this.state.options],
-          });
-        }
-      })
-    }
-  };
 }
 CustomizedSchemaLink.contextTypes = {
   changeCustomValue: PropTypes.func,
 };
-
-export default connect(mapStateToProps)(CustomizedSchemaLink)
 ```
 
 下图以link为例展示了advanced settings的效果：
 
-{% qnimg link_advancedsettings_select.png %}
-
-选择好对应的document后的效果：
-
-{% qnimg link_advancedsettings_selected.png %}
+{% qnimg link_exp.png %}
 
 
 
@@ -476,7 +479,7 @@ public interface SchemaRepository extends MongoRepository<Schema,String> {
 
 删除作为一种标记操作，而不是真的从数据库中将schema删除
 
-若直接将schema删除，在之后就无法实现从对应生成的合同中查看该schema等相关操作
+若直接将schema删除，在之后就无法实现从对应生成的订单中查看该schema等相关操作
 
 实现方式为修改schema的status属性为Deleted
 
@@ -625,47 +628,42 @@ public JSONArray getSchemaWithCommitId(@PathVariable String id, @RequestParam(va
 
 - 数据说明（document数据说明）
 
-以上文中第一个创建的合同schema为例，schema与对应数据组合成为document，一个合同的document如下：
+以一个创建的订单schema为例，与对应数据组合成为的document可以是如下内容：
 
 ```json
 {
-  "linkList": [
-    {
-      "link": "customer"
-    },
-    {
-    	"link": "cashflow"
-    },
-    {
-      "link": "lease"
-    }
-  ],
-  "leases": [
-    {
-      "kind": "ship",
-      "amount": 1,
-      "size": "medium"
-    }
-  ],
-  "startDate": "2019-02-02",
-  "endDate": "2019-06-09",
-  //...
+  "data": {
+    "product": [
+      {
+        "amount": 7,
+        "price": 7,
+        "name": "MaterialA"
+      }
+    ],
+    "require_date": "2019/01/01",
+    "employee_id": "E001",
+    "title": "Order",
+    "customer_id": "C001",
+    "order_id": "O001"
+  },
+  "schemaId": "5de76d618133a3121be192e9",
+  "id": "5de88faf8133a3121be192ff",
+  "collectionName": "Order",
+  "status": "Created"
 }
 ```
 
 - 前端界面（document editor部分）
 
-{% qnimg select_schema.png %}
+以订单为例，用户从订单schema生成document需要以下几步
 
-以合同为例，用户从合同schema生成document需要以下几步
-
-1. 通过选择模板选择对应schema
+1. 选择相应的schema
 2. 使用该schema生成form，供用户填写数据
-3. 获取用户填写的数据，生成对应document
+3. 以用户填写的数据生成对应document
 
 一个创建好的form表单如下：
 
-{% qnimg form_editor.png %}
+{% qnimg form_exp.png %}
 
 - 高级组件（渲染方式）
 
@@ -679,23 +677,16 @@ extensions：包含fields（即需要渲染成的样式）和default（定制类
 
 ```jsx
 import date from '@/components/Date/index'
-import leaseType from '@/components/LeaseType/index'
 import link from '@/components/Link/index'
 
 const extensionsForm = {
     "date": date.field,
-    "leaseType": leaseType.field,
     "link": link.field
 }
 
 const extensionsDefault = {
-    "date": _ => "2000-1-1",
-    "leaseType": _ => ({
-        "kind": "ship",
-        "amount": "1",
-        "size": "large"
-    }),
-    "link": _ => "CUSA/CashFlow"
+    "date": date.defaultField
+    "link": link.defaultField
 }
 
 render() {
@@ -708,50 +699,72 @@ render() {
 }
 ```
 
-以渲染link类型对应的组件LinkField为例：
+以渲染link类型对应的组件LinkField为例（实现效果为生成一个下拉框，下拉框内包含在template中指定的文档的所有属性条目，选择该条目表示通过该条目链接到该文档）：
 
 ```javascript
-/* @/components/JsonSchemaForm/components/fields/LinkField.js */
+/* @/components/Link/field.js */
+import { Cascader, Button, Select } from 'antd'
+import request from '@/utils/request'
 import React from 'react'
-import { connect } from 'dva'
-import { Button, Checkbox, Select } from 'antd'
 
-const mapStateToProps = state => ({
-    link: state['jsonSchemaForm-link']
-})
-
-class LinkField extends React.Component {
-
-    render() {
-        const { label, schema, link } = this.props
-        const selectList = link.content.map(item => <Select.Option value={item}>{item}</Select.Option>)
-        debugger
-        return (
-            <div>
-                <label>{label}</label>
-          			/* LinkField组件的核心是一个下拉选择框，可选项根据向后台请求得到的document渲染 */
-                <Select defaultValue={this.props.formData} style={{ width: 120 }} onChange={value => this.props.onChange(value)}>
-                    {selectList}
-                </Select>
-            </div>
-        )
-    }
-
-    state = {
-        selected: this.props.formData,
+export default class LinkField extends React.Component {
+    constructor(props) {
+        super(props)
+        this.state = {
+            options: [],
+            elementList: null
+        }
     }
 
     componentDidMount() {
-     	 	/* 根据schema中的key和val，向后台请求对应的document */
-        this.props.dispatch({
-            type: 'jsonSchemaForm-link/getDocument',
-            key: this.props.schema.key,
-            val: this.props.schema.val,
-        })
+        console.log(this.props)
+        var collectionName = this.props.schema.toFile[0]
+        request.get(`/api/collections/${collectionName}`)
+            .then(response => {
+                this.setState({ elementList: response })
+                console.log("response: ", response)
+                this.setState({
+                    options: response.map(
+                        item => ({
+                            value: item,
+                            label: item,
+                            isLeaf: true
+                        })
+                    )
+                })
+            })
+            .catch(err => console.log(err))
+    }
+
+    render() {
+        return (<div>
+
+            <Cascader placeholder="please select related element" style={{ width: '100%' }}
+                options={this.state.options}
+                onChange={(value, selectedOptions) => {
+                    if (this.props.schema.linkBy == "reference") {
+                        var collectionName = this.props.schema.toFile[0]
+                        var id = this.props.schema.toFile[1]
+                        request.get(`/api/documents/${id}?collectionName=${collectionName}`)
+                            .then(response => {
+                          this.props.onChange(response.data[selectedOptions[selectedOptions.length - 1].value])
+                            })
+                            .catch(err => console.log(err))
+                    } else if (this.props.schema.linkBy == "value") {
+                        var collectionName = this.props.schema.toFile[0]
+                        var id = this.props.schema.toFile[1]
+                        request.get(`/api/documents/${id}?collectionName=${collectionName}`)
+                            .then(response => {
+                                this.props.onChange(response)
+                            })
+                            .catch(err => console.log(err))
+                    }
+                }}
+            >
+            </Cascader>
+        </div>)
     }
 }
-
-export default connect(mapStateToProps)(LinkField)
 ```
 
 - 后台接口（document管理接口）
@@ -764,7 +777,7 @@ public class Document {
   @Id
   private String id;//数据库主键
   private String schemaId;//对应的schema的编号
-  private String collectionName;//属于什么类型的文档，如客户、合同等
+  private String collectionName;//属于什么类型的文档，如客户、订单等
   private JSONObject data;//用户填写的json数据
   private Status status;//同schema中的status，表示是否删除
 }
@@ -978,7 +991,7 @@ public Document getCompleteDocument(String id, String collectionName, JSONArray 
 
 #### 富文本渲染
 
-项目中使用[Braft Editor](https://braft.margox.cn/)来实现合同文档的在线编辑。Braft Editor是基于[draft-js](https://draftjs.org/)开发的富文本编辑器，支持value和onChange属性，内部使用EditorState对象作为数据格式，可以用典型的受控组件的形式来使用：
+项目中使用[Braft Editor](https://braft.margox.cn/)来实现订单文档的在线编辑。Braft Editor是基于[draft-js](https://draftjs.org/)开发的富文本编辑器，支持value和onChange属性，内部使用EditorState对象作为数据格式，可以用典型的受控组件的形式来使用：
 
 ```javascript
 import React from 'react'
@@ -1031,7 +1044,7 @@ const htmlString = editorState.toHTML()
 
 占位符定义
 
-合同中使用占位符来将合同内容和schema表单联系起来，当表单项填入了具体数值，合同中的占位符会被对应的数字替换。
+订单中使用占位符来将订单内容和schema表单联系起来，当表单项填入了具体数值，订单中的占位符会被对应的数字替换。
 
 - 简单占位符
 
