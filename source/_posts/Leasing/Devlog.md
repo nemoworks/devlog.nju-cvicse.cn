@@ -176,7 +176,7 @@ const linkDef = {
     "link": {
         "type": "link",
       	"linkBy": "default",
-      	"toFile": ["CollectionName", "id"]
+      	"linkTo": ["CollectionName", "Element"]
     }
 }
 ```
@@ -298,7 +298,7 @@ export const mapping = data => ({
 
 Advanced settings中的props包含的data与context两个参数，其中data表示该块schema，context是上下文，可提供将当前所填内容写回整个schema的功能
 
-如下是对link类型的高级设置的定制，效果是添加了两个选择框，以供选择linkBy属性和toFile属性：
+如下是对link类型的高级设置的定制，效果是添加了两个选择框，以供选择linkBy属性和linkTo属性：
 
 ```jsx
 // '@/components/Link/template.js'
@@ -319,7 +319,11 @@ export default class CustomizedSchemaLink extends React.Component {
     this.state = {
       collections: null,
       options: [],
-      doclist: null
+      docCus: null,
+      docOrd: null,
+      docEmp: null,
+      doclist: null,
+      elelist: null,
     }
   }
 
@@ -346,6 +350,33 @@ export default class CustomizedSchemaLink extends React.Component {
       .catch(err => console.log(err))
   }
 
+  getCustomers = () => {
+    request.get("/api/documents?collectionName=Customer")
+      .then(response => {
+        this.setState({ docCus: response })
+      })
+      .catch(err => console.log(err))
+  }
+
+  getOrders = () => {
+
+    request.get("/api/documents?collectionName=Order")
+      .then(response => {
+        this.setState({ docOrd: response })
+      })
+      .catch(err => console.log(err))
+  }
+
+  getEmployees = () => {
+
+    request.get("/api/documents?collectionName=Employee")
+      .then(response => {
+        this.setState({ docEmp: response })
+      })
+      .catch(err => console.log(err))
+  }
+
+
   render() {
     const { data, context } = this.props;
     return (
@@ -355,6 +386,7 @@ export default class CustomizedSchemaLink extends React.Component {
             {'linkBy'}：
           </Col>
           <Col span={20}>
+
             <Select placeholder="select link method" style={{ width: 240 }} onChange={(e) => {
               this.changeOtherValue(e, 'linkBy', data, this.context.changeCustomValue)
             }
@@ -366,36 +398,37 @@ export default class CustomizedSchemaLink extends React.Component {
         </Row>
         <Row className="other-row" type="flex" align="middle">
           <Col span={4} className="other-label">
-            {'toFile'}：
+            {'linkTo'}：
           </Col>
           <Col span={20}>
             <Cascader placeholder="select related File" style={{ width: 240 }}
               options={this.state.options}
               onChange={(e) => {
-                this.changeOtherValue(e, 'toFile', data, this.context.changeCustomValue)
+                this.changeOtherValue(e, 'linkTo', data, this.context.changeCustomValue)
               }
               }
               loadData={selectedOptions => {
                 const targetOption = selectedOptions[selectedOptions.length - 1]
                 targetOption.loading = false
                 var i
+
                 for (i in this.state.options) {
                   if (selectedOptions[0].value == this.state.options[i].value) {
                     var name = selectedOptions[0].value
-                    request.get(`/api/documents?collectionName=${name}`)
+                    request.get(`/api/collections/${name}`)
                       .then(response => {
-                        this.setState({ doclist: response })
-                        targetOption.children = this.state.doclist.map(
+                        this.setState({ elelist: response })
+                        targetOption.children = this.state.elelist.map(
                           item => ({
-                            value: item.id,
-                            label: item.id,
+                            value: item,
+                            label: item,
                             isLeaf: true
                           }))
                         this.setState({ options: [...this.state.options] })
                       })
                       .catch(err => console.log(err))
                   }
-                }   
+                }                
               }
               }
               changeOnSelect
@@ -406,6 +439,8 @@ export default class CustomizedSchemaLink extends React.Component {
       </div>
     );
   }
+
+
 }
 CustomizedSchemaLink.contextTypes = {
   changeCustomValue: PropTypes.func,
@@ -707,27 +742,28 @@ import { Cascader, Button, Select } from 'antd'
 import request from '@/utils/request'
 import React from 'react'
 
+
 export default class LinkField extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
             options: [],
-            elementList: null
+            docList: null,
+            value: []
         }
     }
 
     componentDidMount() {
-        console.log(this.props)
-        var collectionName = this.props.schema.toFile[0]
-        request.get(`/api/collections/${collectionName}`)
+        var collectionName = this.props.schema.linkTo[0]
+
+        request.get(`/api/documents?collectionName=${collectionName}`)
             .then(response => {
-                this.setState({ elementList: response })
-                console.log("response: ", response)
+                this.setState({ docList: response })
                 this.setState({
                     options: response.map(
                         item => ({
-                            value: item,
-                            label: item,
+                            value: item.id,
+                            label: item.id,
                             isLeaf: true
                         })
                     )
@@ -737,22 +773,29 @@ export default class LinkField extends React.Component {
     }
 
     render() {
+
+        console.log(this.props.formData)
+
         return (<div>
 
-            <Cascader placeholder="please select related element" style={{ width: '100%' }}
+            <Cascader 
+                placeholder={this.props.formData.id ? this.props.formData.id : this.props.formData || "please select"}
+                style={{ width: '100%' }}
                 options={this.state.options}
                 onChange={(value, selectedOptions) => {
                     if (this.props.schema.linkBy == "reference") {
-                        var collectionName = this.props.schema.toFile[0]
-                        var id = this.props.schema.toFile[1]
+                        var collectionName = this.props.schema.linkTo[0]
+                        var index = this.props.schema.linkTo[1]
+                        var id = selectedOptions[selectedOptions.length - 1].value
                         request.get(`/api/documents/${id}?collectionName=${collectionName}`)
                             .then(response => {
-                          this.props.onChange(response.data[selectedOptions[selectedOptions.length - 1].value])
+                          this.props.onChange(response.data[index])
                             })
                             .catch(err => console.log(err))
                     } else if (this.props.schema.linkBy == "value") {
-                        var collectionName = this.props.schema.toFile[0]
-                        var id = this.props.schema.toFile[1]
+                        var collectionName = this.props.schema.linkTo[0]
+                        var index = this.props.schema.linkTo[1]
+                        var id = selectedOptions[selectedOptions.length - 1].value
                         request.get(`/api/documents/${id}?collectionName=${collectionName}`)
                             .then(response => {
                                 this.props.onChange(response)
